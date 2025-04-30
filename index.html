@@ -8,75 +8,155 @@
     body { font-family: sans-serif; margin: 1em; background: #f5f5f5; }
     h1 { text-align: center; }
     label { display: block; margin-top: 1em; }
-    select, button { width: 100%; padding: 0.5em; font-size: 1em; }
+    select, input, button { width: 100%; padding: 0.5em; font-size: 1em; box-sizing: border-box; }
     #advice { margin-top: 1em; font-weight: bold; text-align: center; font-size: 1.2em; }
   </style>
 </head>
 <body>
   <h1>Texas Hold'em Helper</h1>
 
+  <!-- Blinds Input -->
+  <label>Small Blind:
+    <input type="number" id="smallBlind" placeholder="e.g., 1" min="0" />
+  </label>
+  <label>Big Blind:
+    <input type="number" id="bigBlind" placeholder="e.g., 2" min="0" />
+  </label>
+
+  <!-- Table Size & Position -->
+  <label>Number of Players:
+    <select id="tableSize" onchange="updatePositionOptions()">
+      <option value="8">8 Players</option>
+      <option value="9">9 Players</option>
+      <option value="10">10 Players</option>
+    </select>
+  </label>
+
+  <label>Position:
+    <select id="position"></select>
+  </label>
+
+  <!-- Hole Cards -->
   <label>Hole Card 1:
     <select id="card1"></select>
   </label>
-
   <label>Hole Card 2:
     <select id="card2"></select>
   </label>
 
-  <label>Position:
-    <select id="position">
-      <option value="UTG">UTG</option>
-      <option value="MP">MP</option>
-      <option value="CO">CO</option>
-      <option value="BTN">Button</option>
-      <option value="SB">Small Blind</option>
-      <option value="BB">Big Blind</option>
-    </select>
+  <!-- Flop, Turn, River Inputs -->
+  <label>Flop (3 Cards, space separated e.g., Ah 7d Kc):
+    <input type="text" id="flop" placeholder="e.g., Ah 7d Kc" />
+  </label>
+  <label>Turn (1 Card e.g., 9h):
+    <input type="text" id="turn" placeholder="e.g., 9h" />
+  </label>
+  <label>River (1 Card e.g., 3s):
+    <input type="text" id="river" placeholder="e.g., 3s" />
   </label>
 
-  <button onclick="getAdvice()">Get Pre-Flop Advice</button>
+  <button onclick="getAdvice()">Get Advice</button>
   <div id="advice"></div>
 
   <script>
     const cards = ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2"];
     const suits = ["♠", "♥", "♦", "♣"];
 
+    // Populate hole card dropdowns
     function populateCards() {
       const select1 = document.getElementById("card1");
       const select2 = document.getElementById("card2");
       for (let r of cards) {
         for (let s of suits) {
           const val = r + s;
-          const opt = new Option(val, val);
           select1.add(new Option(val, val));
           select2.add(new Option(val, val));
         }
       }
     }
 
+    // Update position options based on table size
+    function updatePositionOptions() {
+      const tableSize = document.getElementById("tableSize").value;
+      const positionSelect = document.getElementById("position");
+      positionSelect.innerHTML = "";
+
+      let positions = [];
+      if (tableSize == 8) {
+        positions = ["UTG", "UTG+1", "MP", "CO", "BTN", "SB", "BB"];
+      } else if (tableSize == 9) {
+        positions = ["UTG", "UTG+1", "MP", "MP2", "CO", "BTN", "SB", "BB"];
+      } else {
+        positions = ["UTG", "UTG+1", "MP", "MP2", "CO", "CO2", "BTN", "SB", "BB"];
+      }
+
+      positions.forEach(pos => {
+        positionSelect.add(new Option(pos, pos));
+      });
+    }
+
+    // Basic hand strength evaluation (simplified)
+    function evaluateHand(holeCards, board) {
+      let handStrength = "Weak";
+      const allCards = [...holeCards, ...board];
+      const ranks = allCards.map(c => c[0]);
+      const unique = [...new Set(ranks)];
+      if (unique.length < allCards.length) handStrength = "Pair or Better";
+      return handStrength;
+    }
+
+    // Main advice function
     function getAdvice() {
+      const sb = parseFloat(document.getElementById("smallBlind").value) || 0;
+      const bb = parseFloat(document.getElementById("bigBlind").value) || 0;
+      const tableSize = document.getElementById("tableSize").value;
+      const pos = document.getElementById("position").value;
       const c1 = document.getElementById("card1").value;
       const c2 = document.getElementById("card2").value;
-      const pos = document.getElementById("position").value;
+      const flop = document.getElementById("flop").value.split(" ").filter(c => c);
+      const turn = document.getElementById("turn").value;
+      const river = document.getElementById("river").value;
 
-      const rank1 = c1[0];
-      const rank2 = c2[0];
-      const suited = c1[1] === c2[1];
+      const hole = [c1, c2];
+      const board = [...flop, turn, river].filter(c => c);
+
+      // Evaluate post-flop hand strength
+      const strength = board.length >= 3 ? evaluateHand(hole, board) : null;
 
       let advice = "Fold";
-      if (rank1 === rank2) {
-        if (cards.indexOf(rank1) <= 7) advice = "Raise";
-      } else if ((rank1 === "A" && cards.indexOf(rank2) <= 5) ||
-                 (rank2 === "A" && cards.indexOf(rank1) <= 5)) {
-        advice = suited ? "Raise" : "Call";
-      } else if ((rank1 === "K" || rank2 === "K") && suited) {
-        advice = "Call";
+      let raiseAmount = 0;
+
+      // Pre-flop advice logic
+      if (board.length === 0) {
+        // Example raise factor
+        const raiseFactor = 3;
+        if (c1[0] === c2[0] || c1[0] === 'A' || c2[0] === 'A') {
+          advice = `Raise to ${(bb * raiseFactor).toFixed(2)}`;
+          raiseAmount = bb * raiseFactor;
+        } else if (c1[0] === 'K' && c2[0] === 'K') {
+          advice = `Raise to ${(bb * raiseFactor).toFixed(2)}`;
+          raiseAmount = bb * raiseFactor;
+        } else if (c1[1] === c2[1] && (c1[0] === 'K' || c2[0] === 'K')) {
+          advice = `Call ${bb.toFixed(2)}`;
+        }
+      } else {
+        // Post-flop advice
+        if (strength === "Pair or Better") {
+          advice = `Bet ${(bb * 1.5).toFixed(2)}`;
+        } else {
+          advice = `Check or Fold`;
+        }
       }
+
+      // Add positional note
+      if (pos.includes("BTN")) advice += " since you're on the Button, play aggressively.";
 
       document.getElementById("advice").innerText = `Advice: ${advice}`;
     }
 
+    // Initialize
     populateCards();
+    updatePositionOptions();
   </script>
 </body>
 </html>
