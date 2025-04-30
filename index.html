@@ -1,162 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Poker Assistant</title>
   <style>
-    body { font-family: sans-serif; margin: 1em; background: #f5f5f5; }
-    h1 { text-align: center; }
-    label { display: block; margin-top: 1em; }
-    select, input, button { width: 100%; padding: 0.5em; font-size: 1em; }
-    #advice { margin-top: 1em; font-weight: bold; text-align: center; font-size: 1.2em; }
+    body { font-family: Arial, sans-serif; padding: 10px; background: #1a1a1a; color: white; }
+    h2 { color: #00ff99; }
+    .section { margin-bottom: 20px; }
+    label, select, input, button { display: block; margin: 5px 0; width: 100%; }
+    input, select { padding: 5px; font-size: 16px; }
+    button { background: #00ff99; border: none; padding: 10px; font-size: 16px; cursor: pointer; color: #000; }
+    .output { background: #333; padding: 10px; margin-top: 10px; border-radius: 5px; }
+    .card-inputs, .phase-group { display: flex; gap: 5px; }
+    .card-inputs input { width: 50px; text-transform: uppercase; }
+    .advice-box { color: #00ff99; font-weight: bold; }
+    .red { color: red; }
+    .green { color: #00ff99; }
+    .yellow { color: #ffff00; }
   </style>
 </head>
 <body>
-  <h1>Texas Hold'em Helper</h1>
+  <h2>Matt's Poker Assistant</h2>
 
-  <!-- Small Blind and Big Blind Inputs -->
-  <label>Small Blind:
-    <input type="number" id="smallBlind" placeholder="e.g., 1" />
-  </label>
-  <label>Big Blind:
-    <input type="number" id="bigBlind" placeholder="e.g., 2" />
-  </label>
-
-  <!-- Number of Players Selection -->
-  <label>Number of Players:
-    <select id="tableSize" onchange="updatePositionOptions()">
-      <option value="8">8 Players</option>
-      <option value="9">9 Players</option>
-      <option value="10">10 Players</option>
+  <div class="section">
+    <label>Position</label>
+    <select id="position">
+      <option value="UTG">UTG</option>
+      <option value="MP">MP</option>
+      <option value="HJ">Hijack</option>
+      <option value="CO">Cutoff</option>
+      <option value="BTN">Button</option>
+      <option value="SB">Small Blind</option>
+      <option value="BB">Big Blind</option>
     </select>
-  </label>
+  </div>
 
-  <!-- Hole Cards -->
-  <label>Hole Card 1:
-    <select id="card1"></select>
-  </label>
+  <div class="section">
+    <label>Blinds</label>
+    <input id="smallBlind" type="number" placeholder="Small Blind">
+    <input id="bigBlind" type="number" placeholder="Big Blind">
+  </div>
 
-  <label>Hole Card 2:
-    <select id="card2"></select>
-  </label>
+  <div class="section">
+    <label>Your Stack</label>
+    <input id="yourStack" type="number" placeholder="e.g. 1000">
+    <label>Opponent Stack</label>
+    <input id="opponentStack" type="number" placeholder="e.g. 1000">
+    <label>Current Pot</label>
+    <input id="potSize" type="number" placeholder="e.g. 150">
+  </div>
 
-  <!-- Position -->
-  <label>Position:
-    <select id="position"></select>
-  </label>
+  <div class="section">
+    <label>Hole Cards</label>
+    <div class="card-inputs">
+      <input id="card1" maxlength="2">
+      <input id="card2" maxlength="2">
+    </div>
+  </div>
 
-  <!-- Community Cards (Flop, Turn, River) -->
-  <label>Flop (3 Cards):
-    <input type="text" id="flop" placeholder="e.g., Ah 7d Kc" />
-  </label>
+  <div class="section">
+    <label>Flop</label>
+    <div class="card-inputs">
+      <input id="flop1" maxlength="2">
+      <input id="flop2" maxlength="2">
+      <input id="flop3" maxlength="2">
+    </div>
+  </div>
 
-  <label>Turn (1 Card):
-    <input type="text" id="turn" placeholder="e.g., 9h" />
-  </label>
+  <div class="section">
+    <label>Turn</label>
+    <input id="turn" maxlength="2">
+  </div>
 
-  <label>River (1 Card):
-    <input type="text" id="river" placeholder="e.g., 3s" />
-  </label>
+  <div class="section">
+    <label>River</label>
+    <input id="river" maxlength="2">
+  </div>
 
-  <button onclick="getAdvice()">Get Post-flop Advice</button>
-  <div id="advice"></div>
+  <button onclick="analyzeHand()">Get Advice</button>
+  <button onclick="resetHand()">New Hand</button>
+
+  <div class="output" id="advice"></div>
 
   <script>
-    const cards = ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2"];
-    const suits = ["♠", "♥", "♦", "♣"];
+    function analyzeHand() {
+      const pos = document.getElementById("position").value;
+      const sb = parseInt(document.getElementById("smallBlind").value);
+      const bb = parseInt(document.getElementById("bigBlind").value);
+      const stack = parseInt(document.getElementById("yourStack").value);
+      const oppStack = parseInt(document.getElementById("opponentStack").value);
+      const pot = parseInt(document.getElementById("potSize").value);
+      const card1 = document.getElementById("card1").value.toUpperCase();
+      const card2 = document.getElementById("card2").value.toUpperCase();
+      const flop = ["flop1", "flop2", "flop3"].map(id => document.getElementById(id).value.toUpperCase()).filter(Boolean);
+      const turn = document.getElementById("turn").value.toUpperCase();
+      const river = document.getElementById("river").value.toUpperCase();
 
-    // Populates card dropdowns
-    function populateCards() {
-      const select1 = document.getElementById("card1");
-      const select2 = document.getElementById("card2");
-      for (let r of cards) {
-        for (let s of suits) {
-          const val = r + s;
-          select1.add(new Option(val, val));
-          select2.add(new Option(val, val));
+      let adviceText = `Position: ${pos}, Stack: ${stack}, Pot: ${pot}<br>`;
+      adviceText += `Hole Cards: ${card1} ${card2}<br>`;
+      adviceText += flop.length ? `Flop: ${flop.join(" ")}<br>` : "";
+      adviceText += turn ? `Turn: ${turn}<br>` : "";
+      adviceText += river ? `River: ${river}<br>` : "";
+
+      // Simplified pot odds
+      const call = bb; // Let's assume opponent bet BB for simplicity
+      const potOdds = ((call / (pot + call)) * 100).toFixed(2);
+      adviceText += `Pot Odds: ${potOdds}%<br>`;
+
+      // Simple pre-flop advice
+      const strongHands = ["AA","KK","QQ","AK","AQ","JJ","TT"];
+      const hand = [card1, card2].sort().join("");
+      if (strongHands.some(h => hand.includes(h))) {
+        adviceText += `<span class='green'>Pre-flop: Strong hand – Consider raising 3-5x BB.</span><br>`;
+      } else {
+        adviceText += `<span class='yellow'>Pre-flop: Marginal – consider position and player actions.</span><br>`;
+      }
+
+      // Post-flop evaluation (basic)
+      if (flop.length === 3) {
+        if (flop.includes(card1) || flop.includes(card2)) {
+          adviceText += `<span class='green'>Post-flop: You may have top pair – play cautiously.</span><br>`;
+        } else {
+          adviceText += `<span class='red'>Post-flop: Likely missed – fold to big bets.</span><br>`;
         }
       }
+
+      document.getElementById("advice").innerHTML = adviceText;
     }
 
-    // Updates position options based on table size
-    function updatePositionOptions() {
-      const tableSize = document.getElementById("tableSize").value;
-      const positionSelect = document.getElementById("position");
-      positionSelect.innerHTML = "";  // Clear current options
-
-      let positions = [];
-      if (tableSize == 8) {
-        positions = ["UTG", "UTG+1", "MP", "CO", "BTN", "SB", "BB"];
-      } else if (tableSize == 9) {
-        positions = ["UTG", "UTG+1", "MP", "MP2", "CO", "BTN", "SB", "BB"];
-      } else {
-        positions = ["UTG", "UTG+1", "MP", "MP2", "CO", "CO2", "BTN", "SB", "BB"];
-      }
-
-      // Add options to the dropdown
-      positions.forEach(function(position) {
-        const option = new Option(position, position);
-        positionSelect.add(option);
-      });
+    function resetHand() {
+      ["card1", "card2", "flop1", "flop2", "flop3", "turn", "river"].forEach(id => document.getElementById(id).value = "");
+      document.getElementById("advice").innerHTML = "";
     }
-
-    // Evaluates hand strength (basic)
-    function evaluateHand(holeCards, board) {
-      let handStrength = "Weak";
-      const allCards = [...holeCards, ...board];
-      const ranks = allCards.map(card => card[0]);
-      const uniqueRanks = [...new Set(ranks)];
-
-      if (uniqueRanks.length < allCards.length) {
-        handStrength = "Pair or Better";
-      }
-
-      return handStrength;
-    }
-
-    // Provides advice based on hand strength and position
-    function getAdvice() {
-      const smallBlind = parseInt(document.getElementById("smallBlind").value);
-      const bigBlind = parseInt(document.getElementById("bigBlind").value);
-      const c1 = document.getElementById("card1").value;
-      const c2 = document.getElementById("card2").value;
-      const pos = document.getElementById("position").value;
-      const tableSize = document.getElementById("tableSize").value;
-
-      const flop = document.getElementById("flop").value.split(" ");
-      const turn = document.getElementById("turn").value;
-      const river = document.getElementById("river").value;
-
-      const holeCards = [c1, c2];
-      const board = [...flop, turn, river].filter(card => card);
-
-      // Evaluate hand strength
-      const handStrength = evaluateHand(holeCards, board);
-
-      let advice = "Fold";
-
-      // Raise logic based on blinds and hand strength
-      const raiseAmount = bigBlind * 3; // Typically raise 3xBB pre-flop
-      if (handStrength === "Pair or Better") {
-        advice = `Consider raising to ${raiseAmount} or betting 1.5xBB on the flop.`;
-      } else if (handStrength === "Weak") {
-        advice = "Check or Fold.";
-      }
-
-      // Position-based advice
-      if (pos === "BTN") {
-        advice += " On the Button, you can play aggressively.";
-      } else if (pos === "SB" || pos === "BB") {
-        advice += " In the blinds, be cautious unless you have a strong hand.";
-      }
-
-      document.getElementById("advice").innerText = `Advice: ${advice} Hand strength: ${handStrength}`;
-    }
-
-    // Populate cards and initialize position options
-    populateCards();
-    updatePositionOptions();
   </script>
 </body>
 </html>
