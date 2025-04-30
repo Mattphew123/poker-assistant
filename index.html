@@ -15,7 +15,7 @@
 <body>
   <h1>Texas Hold'em Helper</h1>
 
-  <!-- Blinds Input -->
+  <!-- Small Blind and Big Blind Inputs -->
   <label>Small Blind:
     <input type="number" id="smallBlind" placeholder="e.g., 1" />
   </label>
@@ -23,6 +23,7 @@
     <input type="number" id="bigBlind" placeholder="e.g., 2" />
   </label>
 
+  <!-- Number of Players Selection -->
   <label>Number of Players:
     <select id="tableSize" onchange="updatePositionOptions()">
       <option value="8">8 Players</option>
@@ -31,6 +32,7 @@
     </select>
   </label>
 
+  <!-- Hole Cards -->
   <label>Hole Card 1:
     <select id="card1"></select>
   </label>
@@ -39,11 +41,12 @@
     <select id="card2"></select>
   </label>
 
+  <!-- Position -->
   <label>Position:
     <select id="position"></select>
   </label>
 
-  <!-- Flop, Turn, and River Inputs -->
+  <!-- Community Cards (Flop, Turn, River) -->
   <label>Flop (3 Cards):
     <input type="text" id="flop" placeholder="e.g., Ah 7d Kc" />
   </label>
@@ -63,6 +66,7 @@
     const cards = ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2"];
     const suits = ["♠", "♥", "♦", "♣"];
 
+    // Populates card dropdowns
     function populateCards() {
       const select1 = document.getElementById("card1");
       const select2 = document.getElementById("card2");
@@ -75,6 +79,7 @@
       }
     }
 
+    // Updates position options based on table size
     function updatePositionOptions() {
       const tableSize = document.getElementById("tableSize").value;
       const positionSelect = document.getElementById("position");
@@ -96,14 +101,10 @@
       });
     }
 
+    // Evaluates hand strength (basic)
     function evaluateHand(holeCards, board) {
-      // Very basic hand evaluation logic (you can enhance this)
       let handStrength = "Weak";
-
-      // Combine hole cards and board cards
       const allCards = [...holeCards, ...board];
-      
-      // Check for pairs (simplified logic)
       const ranks = allCards.map(card => card[0]);
       const uniqueRanks = [...new Set(ranks)];
 
@@ -114,6 +115,7 @@
       return handStrength;
     }
 
+    // Provides advice based on hand strength and position
     function getAdvice() {
       const smallBlind = parseInt(document.getElementById("smallBlind").value);
       const bigBlind = parseInt(document.getElementById("bigBlind").value);
@@ -152,8 +154,9 @@
       document.getElementById("advice").innerText = `Advice: ${advice} Hand strength: ${handStrength}`;
     }
 
+    // Populate cards and initialize position options
     populateCards();
-    updatePositionOptions(); // Initialize the position options
+    updatePositionOptions();
   </script>
 </body>
 </html>
