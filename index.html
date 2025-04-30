@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Poker Assistant</title>
+  <style>
+    body { font-family: sans-serif; margin: 1em; background: #f5f5f5; }
+    h1 { text-align: center; }
+    label { display: block; margin-top: 1em; }
+    select, button { width: 100%; padding: 0.5em; font-size: 1em; }
+    #advice { margin-top: 1em; font-weight: bold; text-align: center; font-size: 1.2em; }
+  </style>
+</head>
+<body>
+  <h1>Texas Hold'em Helper</h1>
+
+  <label>Hole Card 1:
+    <select id="card1"></select>
+  </label>
+
+  <label>Hole Card 2:
+    <select id="card2"></select>
+  </label>
+
+  <label>Position:
+    <select id="position">
+      <option value="UTG">UTG</option>
+      <option value="MP">MP</option>
+      <option value="CO">CO</option>
+      <option value="BTN">Button</option>
+      <option value="SB">Small Blind</option>
+      <option value="BB">Big Blind</option>
+    </select>
+  </label>
+
+  <button onclick="getAdvice()">Get Pre-Flop Advice</button>
+  <div id="advice"></div>
+
+  <script>
+    const cards = ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2"];
+    const suits = ["♠", "♥", "♦", "♣"];
+
+    function populateCards() {
+      const select1 = document.getElementById("card1");
+      const select2 = document.getElementById("card2");
+      for (let r of cards) {
+        for (let s of suits) {
+          const val = r + s;
+          const opt = new Option(val, val);
+          select1.add(new Option(val, val));
+          select2.add(new Option(val, val));
+        }
+      }
+    }
+
+    function getAdvice() {
+      const c1 = document.getElementById("card1").value;
+      const c2 = document.getElementById("card2").value;
+      const pos = document.getElementById("position").value;
+
+      const rank1 = c1[0];
+      const rank2 = c2[0];
+      const suited = c1[1] === c2[1];
+
+      let advice = "Fold";
+      if (rank1 === rank2) {
+        if (cards.indexOf(rank1) <= 7) advice = "Raise";
+      } else if ((rank1 === "A" && cards.indexOf(rank2) <= 5) ||
+                 (rank2 === "A" && cards.indexOf(rank1) <= 5)) {
+        advice = suited ? "Raise" : "Call";
+      } else if ((rank1 === "K" || rank2 === "K") && suited) {
+        advice = "Call";
+      }
+
+      document.getElementById("advice").innerText = `Advice: ${advice}`;
+    }
+
+    populateCards();
+  </script>
+</body>
+</html>
