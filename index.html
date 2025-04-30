@@ -24,6 +24,21 @@
   <h2>Matt's Poker Assistant</h2>
 
   <div class="section">
+    <label>Number of Players</label>
+    <select id="numPlayers">
+      <option value="4">4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
+      <option value="7">7</option>
+      <option value="8">8</option>
+      <option value="9">9</option>
+      <option value="10">10</option>
+      <option value="11">11</option>
+      <option value="12">12</option>
+    </select>
+  </div>
+
+  <div class="section">
     <label>Position</label>
     <select id="position">
       <option value="UTG">UTG</option>
@@ -86,6 +101,7 @@
   <script>
     function analyzeHand() {
       const pos = document.getElementById("position").value;
+      const numPlayers = parseInt(document.getElementById("numPlayers").value);
       const sb = parseInt(document.getElementById("smallBlind").value);
       const bb = parseInt(document.getElementById("bigBlind").value);
       const stack = parseInt(document.getElementById("yourStack").value);
@@ -97,7 +113,7 @@
       const turn = document.getElementById("turn").value.toUpperCase();
       const river = document.getElementById("river").value.toUpperCase();
 
-      let adviceText = `Position: ${pos}, Stack: ${stack}, Pot: ${pot}<br>`;
+      let adviceText = `Players: ${numPlayers}, Position: ${pos}, Stack: ${stack}, Pot: ${pot}<br>`;
       adviceText += `Hole Cards: ${card1} ${card2}<br>`;
       adviceText += flop.length ? `Flop: ${flop.join(" ")}<br>` : "";
       adviceText += turn ? `Turn: ${turn}<br>` : "";
