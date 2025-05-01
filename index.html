@@ -1,152 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Poker Assistant</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f0f8ff;
-      margin: 0;
+      background-color: #2c3e50;
+      color: #ecf0f1;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
+      justify-content: center;
       height: 100vh;
+      margin: 0;
     }
     .container {
-      background-color: #ffffff;
-      border-radius: 12px;
+      background-color: #34495e;
       padding: 20px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-      width: 90%;
-      max-width: 600px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+      width: 100%;
       text-align: center;
     }
     select, button {
       padding: 10px;
       margin: 5px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 16px;
+      border-radius: 5px;
+      border: none;
+      font-size: 1rem;
     }
-    .cards-row {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-bottom: 10px;
+    button {
+      background-color: #1abc9c;
+      color: white;
+      cursor: pointer;
     }
-    .cards-row select {
-      margin: 5px;
+    button:hover {
+      background-color: #16a085;
     }
     .section {
-      margin-top: 20px;
+      margin-bottom: 15px;
+    }
+    .advice {
+      background-color: #1c2833;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Poker Assistant</h2>
-
+    <h2>Poker Assist</h2>
     <div class="section">
-      <label for="playerCount">Number of Players:</label>
-      <select id="playerCount">
-        <option value="4">4</option>
-        <option value="5">5</option>
-        <option value="6">6</option>
-        <option value="7">7</option>
-        <option value="8">8</option>
-        <option value="9">9</option>
-        <option value="10">10</option>
-        <option value="11">11</option>
-        <option value="12">12</option>
+      <label for="players">Number of Players:</label>
+      <select id="players">
+        ${[...Array(9)].map((_, i) => `<option value="${i + 4}">${i + 4}</option>`).join('')}
       </select>
     </div>
-
     <div class="section">
       <label for="position">Your Position:</label>
       <select id="position">
-        <option value="UTG">UTG</option>
-        <option value="UTG+1">UTG+1</option>
-        <option value="MP">MP</option>
-        <option value="MP+1">MP+1</option>
-        <option value="CO">CO (Cutoff)</option>
-        <option value="BTN">BTN (Button)</option>
-        <option value="SB">SB (Small Blind)</option>
-        <option value="BB">BB (Big Blind)</option>
+        <option>UTG</option>
+        <option>UTG+1</option>
+        <option>UTG+2</option>
+        <option>MP</option>
+        <option>MP+1</option>
+        <option>HJ</option>
+        <option>CO</option>
+        <option>BTN</option>
+        <option>SB</option>
+        <option>BB</option>
       </select>
     </div>
-
     <div class="section">
-      <h3>Your Cards</h3>
-      <div class="cards-row">
-        <select id="card1"></select>
-        <select id="card2"></select>
-      </div>
+      <label>Hole Cards:</label>
+      <select id="card1"></select>
+      <select id="card2"></select>
     </div>
-
     <div class="section">
-      <h3>Community Cards</h3>
-      <div class="cards-row">
-        <select id="flop1"></select>
-        <select id="flop2"></select>
-        <select id="flop3"></select>
-        <select id="turn"></select>
-        <select id="river"></select>
-      </div>
+      <label>Flop:</label>
+      <select id="flop1"></select>
+      <select id="flop2"></select>
+      <select id="flop3"></select>
     </div>
-
     <div class="section">
-      <button onclick="giveAdvice()">Get Advice</button>
-      <p id="advice"></p>
+      <label>Turn:</label>
+      <select id="turn"></select>
     </div>
+    <div class="section">
+      <label>River:</label>
+      <select id="river"></select>
+    </div>
+    <button onclick="getAdvice()">Get Advice</button>
+    <div class="advice" id="advice"></div>
   </div>
 
   <script>
     const suits = ['♠', '♥', '♦', '♣'];
-    const ranks = ['A', 'K', 'Q', 'J', '10', '9', '8', '7', '6', '5', '4', '3', '2'];
-    const cardSelects = ['card1', 'card2', 'flop1', 'flop2', 'flop3', 'turn', 'river'];
+    const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+    const cards = suits.flatMap(s => ranks.map(r => `${r}${s}`));
 
-    function populateCardSelects() {
-      const options = [];
-      suits.forEach(suit => {
-        ranks.forEach(rank => {
-          options.push(`<option value="${rank}${suit}">${rank}${suit}</option>`);
-        });
+    ['card1', 'card2', 'flop1', 'flop2', 'flop3', 'turn', 'river'].forEach(id => {
+      const select = document.getElementById(id);
+      cards.forEach(card => {
+        const opt = document.createElement('option');
+        opt.value = card;
+        opt.innerText = card;
+        select.appendChild(opt);
       });
-      cardSelects.forEach(id => {
-        const select = document.getElementById(id);
-        select.innerHTML = '<option value="">--</option>' + options.join('');
-      });
-    }
+    });
 
-    function giveAdvice() {
-      const position = document.getElementById('position').value;
-      const playerCount = document.getElementById('playerCount').value;
+    function getAdvice() {
       const card1 = document.getElementById('card1').value;
       const card2 = document.getElementById('card2').value;
-      const flop = [document.getElementById('flop1').value, document.getElementById('flop2').value, document.getElementById('flop3').value];
+      const pos = document.getElementById('position').value;
+      const flop = [
+        document.getElementById('flop1').value,
+        document.getElementById('flop2').value,
+        document.getElementById('flop3').value
+      ];
       const turn = document.getElementById('turn').value;
       const river = document.getElementById('river').value;
 
-      let advice = `Playing ${card1} and ${card2} from ${position} with ${playerCount} players.\n`;
+      let advice = '';
+      const suited = card1.slice(-1) === card2.slice(-1);
+      const rank1 = card1.slice(0, -1);
+      const rank2 = card2.slice(0, -1);
+      const strongPairs = ['A', 'K', 'Q', 'J', '10'];
 
-      if (!card1 || !card2) {
-        advice += 'Please enter both hole cards.';
-      } else if (!flop[0]) {
-        advice += 'Pre-flop advice: Play tight in early positions (UTG, UTG+1), open up in BTN and CO. Premium hands raise, suited connectors in late only.';
+      const pair = rank1 === rank2;
+      const highCards = strongPairs.includes(rank1) && strongPairs.includes(rank2);
+
+      if (!flop[0]) {
+        if (pair && strongPairs.includes(rank1)) {
+          advice = 'Raise to 3 BB';
+        } else if (highCards && suited) {
+          advice = 'Raise to 2.5 BB';
+        } else if (highCards || suited) {
+          advice = 'Call';
+        } else {
+          advice = 'Fold';
+        }
       } else if (!turn) {
-        advice += 'Flop advice: Evaluate made hands, draws. Consider position. Bet for value or semi-bluff draws.';
+        advice = 'If hit: Bet 1/2 pot. Else: Check or fold to big bet';
       } else if (!river) {
-        advice += 'Turn advice: Proceed with caution. Consider board texture, opponents’ actions. Bluff sparingly.';
+        advice = 'Bet if you have draw or pair. Else: Check';
       } else {
-        advice += 'River advice: Bet for value with strong hands. Don’t bluff weak opponents. Fold if the board is scary and you missed.';
+        advice = 'Value bet or check-call with top pair or better';
       }
 
       document.getElementById('advice').innerText = advice;
     }
-
-    populateCardSelects();
   </script>
 </body>
 </html>
