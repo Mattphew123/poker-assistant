@@ -1,96 +1,187 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Poker Assist Sequential</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Poker Assist Tool</title>
   <style>
-    body { background: #292b2c; color: #ecf0f1; font-family: Arial, sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-    .container { background: #3b3f44; padding: 20px; border-radius: 12px; width: 90%; max-width: 500px; }
-    h2 { text-align: center; margin-top: 0; }
-    label { display: block; margin-top: 15px; font-weight: bold; }
-    select, button { width: 100%; padding: 10px; margin-top: 5px; border-radius: 6px; border: none; font-size: 16px; }
-    select { background: #444; color: #ecf0f1; }
-    button { background: #1abc9c; color: white; cursor: pointer; margin-top: 20px; }
-    button:hover { background: #16a085; }
-    .section { display: none; }
-    .active { display: block; }
-    #adviceBox { margin-top: 20px; background: #1d1f21; padding: 15px; border-radius: 6px; min-height: 50px; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    .section {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      width: 100%;
+      max-width: 600px;
+    }
+    label, select, button {
+      display: block;
+      width: 100%;
+      margin-top: 10px;
+    }
+    .card-memory {
+      margin-top: 15px;
+      padding: 10px;
+      background: #e6f7ff;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .card-display {
+      font-size: 1.4em;
+      margin: 5px;
+    }
+    .advice {
+      background: #fffbe6;
+      padding: 10px;
+      margin-top: 10px;
+      border-left: 4px solid #ffc107;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Poker Assist</h2>
-    <!-- Section 0: Pre-Flop -->
-    <div id="sec0" class="section active">
-      <label for="players">Number of Players:</label>
-      <select id="players"></select>
-      <label for="position">Position:</label>
-      <select id="position"></select>
-      <label>Hole Card 1:</label><select id="card1"></select>
-      <label>Hole Card 2:</label><select id="card2"></select>
-    </div>
-    <!-- Section 1: Flop -->
-    <div id="sec1" class="section">
-      <label>Flop Card 1:</label><select id="flop1"></select>
-      <label>Flop Card 2:</label><select id="flop2"></select>
-      <label>Flop Card 3:</label><select id="flop3"></select>
-    </div>
-    <!-- Section 2: Turn -->
-    <div id="sec2" class="section">
-      <label>Turn Card:</label><select id="turn"></select>
-    </div>
-    <!-- Section 3: River -->
-    <div id="sec3" class="section">
-      <label>River Card:</label><select id="river"></select>
-    </div>
-    <button id="actionBtn">Get Advice</button>
-    <div id="adviceBox"></div>
+  <h1>Poker Assist Tool</h1>
+
+  <div class="section">
+    <label for="playerCount">Number of Players (4-12):</label>
+    <select id="playerCount"></select>
+
+    <label for="position">Your Position:</label>
+    <select id="position"></select>
   </div>
-<script>
-  // Setup
-  const suits=['♠','♥','♦','♣'], ranks=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
-  const cards = suits.flatMap(s=>ranks.map(r=>r+s));
-  // Populate player count
-  const playersSel=document.getElementById('players');
-  for(let i=4;i<=12;i++){let o=document.createElement('option');o.value=i;o.text=i+' Players';playersSel.append(o);}  
-  // Populate positions dynamic by count
-  function updatePositions(){
-    const posList=['UTG','UTG+1','MP','MP+1','HJ','CO','BTN','SB','BB'];
-    const count=parseInt(playersSel.value);
-    const startIndex=posList.length-count;
-    const posSel=document.getElementById('position'); posSel.innerHTML='';
-    for(let i=startIndex;i<posList.length;i++){let o=document.createElement('option');o.value=posList[i];o.text=posList[i];posSel.append(o);}  }
-  playersSel.addEventListener('change',updatePositions);
-  updatePositions();
-  // Populate all card dropdowns
-  ['card1','card2','flop1','flop2','flop3','turn','river'].forEach(id=>{
-    const sel=document.getElementById(id);cards.forEach(c=>{let o=document.createElement('option');o.value=c;o.text=c;sel.append(o);});
-  });
-  // Sequential logic
-  let stage=0;
-  const sections=[0,1,2,3].map(i=>document.getElementById('sec'+i));
-  const btn=document.getElementById('actionBtn');
-  const adviceBox=document.getElementById('adviceBox');
-  btn.onclick=()=>{
-    let advice='';
-    const c1=document.getElementById('card1').value,c2=document.getElementById('card2').value;
-    const pair=c1.slice(0,-1)===c2.slice(0,-1), suited=c1.slice(-1)===c2.slice(-1);
-    const strong=['A','K','Q','J','10'];
-    if(stage===0){ // pre-flop
-      if(pair&&strong.includes(c1.slice(0,-1))) advice='Raise to 3BB';
-      else if(strong.includes(c1[0])&&strong.includes(c2[0])&&suited) advice='Raise to 2.5BB';
-      else if(strong.includes(c1[0])||suited) advice='Call';
-      else advice='Fold';
-    } else if(stage===1){ advice='Flop: Bet ½ pot with top pair or draw; else check/fold'; }
-    else if(stage===2){ advice='Turn: Bet small if improved; else check'; }
-    else if(stage===3){ advice='River: Value bet strong hands; fold if missed'; }
-    adviceBox.innerText=advice;
-    // move to next
-    sections[stage].classList.remove('active'); stage++;
-    if(stage<sections.length){sections[stage].classList.add('active'); btn.innerText=stage<3?'Get Advice':'Get River Advice';}
-    else{btn.innerText='New Hand'; stage=0; sections[0].classList.add('active');}
-  };
-</script>
+
+  <div class="section">
+    <h3>Hole Cards</h3>
+    <select id="hole1"></select>
+    <select id="hole2"></select>
+    <button onclick="showAdvice('preflop')">Get Pre-Flop Advice</button>
+    <div class="advice" id="advicePre"></div>
+  </div>
+
+  <div class="section">
+    <h3>Flop</h3>
+    <select id="flop1"></select>
+    <select id="flop2"></select>
+    <select id="flop3"></select>
+    <button onclick="showAdvice('flop')">Get Flop Advice</button>
+    <div class="advice" id="adviceFlop"></div>
+  </div>
+
+  <div class="section">
+    <h3>Turn</h3>
+    <select id="turn"></select>
+    <button onclick="showAdvice('turn')">Get Turn Advice</button>
+    <div class="advice" id="adviceTurn"></div>
+  </div>
+
+  <div class="section">
+    <h3>River</h3>
+    <select id="river"></select>
+    <button onclick="showAdvice('river')">Get River Advice</button>
+    <div class="advice" id="adviceRiver"></div>
+  </div>
+
+  <div class="section card-memory">
+    <h3>Card Memory</h3>
+    <div id="cardMemory"></div>
+  </div>
+
+  <script>
+    const suits = ['♠', '♥', '♦', '♣'];
+    const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+    const usedCards = new Set();
+
+    const cardOptions = suits.flatMap(suit => values.map(val => `${val}${suit}`));
+
+    const playerCountSelect = document.getElementById('playerCount');
+    for (let i = 4; i <= 12; i++) {
+      const option = document.createElement('option');
+      option.value = i;
+      option.text = i;
+      playerCountSelect.appendChild(option);
+    }
+
+    playerCountSelect.addEventListener('change', updatePositionOptions);
+
+    function updatePositionOptions() {
+      const pos = document.getElementById('position');
+      pos.innerHTML = '';
+      const count = parseInt(playerCountSelect.value);
+      const positions = [
+        'Under the Gun', 'UTG+1', 'UTG+2', 'Lojack', 'Hijack', 'Cutoff',
+        'Button', 'Small Blind', 'Big Blind'
+      ];
+      const maxPositions = positions.slice(0, count);
+      maxPositions.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p;
+        opt.text = p.replace('Small Blind', 'Small Blind').replace('Big Blind', 'Big Blind');
+        pos.appendChild(opt);
+      });
+    }
+    updatePositionOptions();
+
+    const selectors = ['hole1', 'hole2', 'flop1', 'flop2', 'flop3', 'turn', 'river'];
+
+    selectors.forEach(id => {
+      const sel = document.getElementById(id);
+      updateSelectOptions(sel);
+      sel.addEventListener('change', () => {
+        usedCards.add(sel.value);
+        updateAllSelectors();
+        updateMemory();
+      });
+    });
+
+    function updateSelectOptions(select) {
+      select.innerHTML = '<option value="">-- Select Card --</option>';
+      cardOptions.forEach(card => {
+        const opt = document.createElement('option');
+        opt.value = card;
+        opt.text = card;
+        if (usedCards.has(card)) opt.disabled = true;
+        select.appendChild(opt);
+      });
+    }
+
+    function updateAllSelectors() {
+      selectors.forEach(id => {
+        const sel = document.getElementById(id);
+        const currentVal = sel.value;
+        updateSelectOptions(sel);
+        sel.value = currentVal;
+      });
+    }
+
+    function updateMemory() {
+      const memory = document.getElementById('cardMemory');
+      const selected = selectors.map(id => document.getElementById(id).value).filter(Boolean);
+      memory.innerHTML = selected.map(card => `<span class="card-display">${card}</span>`).join('');
+    }
+
+    function showAdvice(stage) {
+      const adviceMap = {
+        preflop: 'Tip: Raise to 2.5x BB from early position if suited connectors or high pairs. Otherwise, fold or call.',
+        flop: 'Tip: Bet for value if you hit top pair or better. If you missed completely, consider folding to aggression.',
+        turn: 'Tip: Re-evaluate your hand strength. Consider betting for protection or checking for pot control.',
+        river: 'Tip: Either go for thin value or check/fold if your draw missed and opponent applies pressure.'
+      };
+      document.getElementById(`advice${capitalize(stage)}`).innerText = adviceMap[stage];
+    }
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+  </script>
 </body>
 </html>
