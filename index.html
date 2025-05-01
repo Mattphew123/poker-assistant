@@ -1,154 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Poker Assistant</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 10px; background: #1a1a1a; color: white; }
-    h2 { color: #00ff99; }
-    .section { margin-bottom: 20px; }
-    label, select, input, button { display: block; margin: 5px 0; width: 100%; }
-    input, select { padding: 5px; font-size: 16px; }
-    button { background: #00ff99; border: none; padding: 10px; font-size: 16px; cursor: pointer; color: #000; }
-    .output { background: #333; padding: 10px; margin-top: 10px; border-radius: 5px; }
-    .card-inputs, .phase-group { display: flex; gap: 5px; }
-    .card-inputs input { width: 50px; text-transform: uppercase; }
-    .advice-box { color: #00ff99; font-weight: bold; }
-    .red { color: red; }
-    .green { color: #00ff99; }
-    .yellow { color: #ffff00; }
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    select, input { margin: 5px; padding: 5px; }
+    button { margin: 10px; padding: 10px; }
+    .card-select { width: 60px; }
+    option[data-suit="h"] { color: red; }
+    option[data-suit="d"] { color: red; }
+    option[data-suit="c"] { color: black; }
+    option[data-suit="s"] { color: black; }
   </style>
 </head>
 <body>
-  <h2>Matt's Poker Assistant</h2>
-
-  <div class="section">
-    <label>Number of Players</label>
+  <h1>Poker Assistant</h1>
+  <form id="pokerForm">
+    <label for="numPlayers">Number of Players (4-12): </label>
     <select id="numPlayers">
-      <option value="4">4</option>
-      <option value="5">5</option>
-      <option value="6">6</option>
-      <option value="7">7</option>
-      <option value="8">8</option>
-      <option value="9">9</option>
-      <option value="10">10</option>
-      <option value="11">11</option>
-      <option value="12">12</option>
-    </select>
-  </div>
+      ${[...Array(9).keys()].map(i => `<option value="${i+4}">${i+4}</option>`).join('')}
+    </select><br>
 
-  <div class="section">
-    <label>Position</label>
+    <label for="position">Your Position: </label>
     <select id="position">
       <option value="UTG">UTG</option>
       <option value="MP">MP</option>
-      <option value="HJ">Hijack</option>
-      <option value="CO">Cutoff</option>
-      <option value="BTN">Button</option>
-      <option value="SB">Small Blind</option>
-      <option value="BB">Big Blind</option>
-    </select>
-  </div>
+      <option value="CO">CO</option>
+      <option value="BTN">BTN</option>
+      <option value="SB">SB</option>
+      <option value="BB">BB</option>
+    </select><br>
 
-  <div class="section">
-    <label>Blinds</label>
-    <input id="smallBlind" type="number" placeholder="Small Blind">
-    <input id="bigBlind" type="number" placeholder="Big Blind">
-  </div>
+    <label>Your Hole Cards:</label>
+    <select class="card-select" id="card1"></select>
+    <select class="card-select" id="card2"></select><br>
 
-  <div class="section">
-    <label>Your Stack</label>
-    <input id="yourStack" type="number" placeholder="e.g. 1000">
-    <label>Opponent Stack</label>
-    <input id="opponentStack" type="number" placeholder="e.g. 1000">
-    <label>Current Pot</label>
-    <input id="potSize" type="number" placeholder="e.g. 150">
-  </div>
+    <label>Flop:</label>
+    <select class="card-select" id="flop1"></select>
+    <select class="card-select" id="flop2"></select>
+    <select class="card-select" id="flop3"></select><br>
 
-  <div class="section">
-    <label>Hole Cards</label>
-    <div class="card-inputs">
-      <input id="card1" maxlength="2">
-      <input id="card2" maxlength="2">
-    </div>
-  </div>
+    <label>Turn:</label>
+    <select class="card-select" id="turn"></select>
+    <label>River:</label>
+    <select class="card-select" id="river"></select><br>
 
-  <div class="section">
-    <label>Flop</label>
-    <div class="card-inputs">
-      <input id="flop1" maxlength="2">
-      <input id="flop2" maxlength="2">
-      <input id="flop3" maxlength="2">
-    </div>
-  </div>
+    <label for="smallBlind">Small Blind: </label>
+    <input type="number" id="smallBlind" value="1" />
+    <label for="bigBlind">Big Blind: </label>
+    <input type="number" id="bigBlind" value="2" /><br>
 
-  <div class="section">
-    <label>Turn</label>
-    <input id="turn" maxlength="2">
-  </div>
+    <label for="stackSize">Your Stack (in BB): </label>
+    <input type="number" id="stackSize" value="100" /><br>
 
-  <div class="section">
-    <label>River</label>
-    <input id="river" maxlength="2">
-  </div>
+    <button type="button" onclick="evaluateHand()">Evaluate</button>
+  </form>
 
-  <button onclick="analyzeHand()">Get Advice</button>
-  <button onclick="resetHand()">New Hand</button>
-
-  <div class="output" id="advice"></div>
+  <div id="results"></div>
 
   <script>
-    function analyzeHand() {
-      const pos = document.getElementById("position").value;
-      const numPlayers = parseInt(document.getElementById("numPlayers").value);
-      const sb = parseInt(document.getElementById("smallBlind").value);
-      const bb = parseInt(document.getElementById("bigBlind").value);
-      const stack = parseInt(document.getElementById("yourStack").value);
-      const oppStack = parseInt(document.getElementById("opponentStack").value);
-      const pot = parseInt(document.getElementById("potSize").value);
-      const card1 = document.getElementById("card1").value.toUpperCase();
-      const card2 = document.getElementById("card2").value.toUpperCase();
-      const flop = ["flop1", "flop2", "flop3"].map(id => document.getElementById(id).value.toUpperCase()).filter(Boolean);
-      const turn = document.getElementById("turn").value.toUpperCase();
-      const river = document.getElementById("river").value.toUpperCase();
+    const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+    const suits = ['h', 'd', 'c', 's'];
 
-      let adviceText = `Players: ${numPlayers}, Position: ${pos}, Stack: ${stack}, Pot: ${pot}<br>`;
-      adviceText += `Hole Cards: ${card1} ${card2}<br>`;
-      adviceText += flop.length ? `Flop: ${flop.join(" ")}<br>` : "";
-      adviceText += turn ? `Turn: ${turn}<br>` : "";
-      adviceText += river ? `River: ${river}<br>` : "";
+    function populateCardSelects() {
+      const selects = document.querySelectorAll('.card-select');
+      selects.forEach(select => {
+        select.innerHTML = '<option value="">--</option>';
+        for (let r of ranks) {
+          for (let s of suits) {
+            let card = r + s;
+            let opt = document.createElement('option');
+            opt.value = card;
+            opt.text = card;
+            opt.setAttribute('data-suit', s);
+            select.add(opt);
+          }
+        }
+      });
+    }
 
-      // Simplified pot odds
-      const call = bb; // Let's assume opponent bet BB for simplicity
-      const potOdds = ((call / (pot + call)) * 100).toFixed(2);
-      adviceText += `Pot Odds: ${potOdds}%<br>`;
+    function evaluateHand() {
+      const card1 = document.getElementById('card1').value;
+      const card2 = document.getElementById('card2').value;
+      const flop = [
+        document.getElementById('flop1').value,
+        document.getElementById('flop2').value,
+        document.getElementById('flop3').value
+      ].filter(Boolean);
+      const turn = document.getElementById('turn').value;
+      const river = document.getElementById('river').value;
+      const position = document.getElementById('position').value;
+      const sb = parseFloat(document.getElementById('smallBlind').value);
+      const bb = parseFloat(document.getElementById('bigBlind').value);
+      const stack = parseFloat(document.getElementById('stackSize').value);
 
-      // Simple pre-flop advice
-      const strongHands = ["AA","KK","QQ","AK","AQ","JJ","TT"];
-      const hand = [card1, card2].sort().join("");
-      if (strongHands.some(h => hand.includes(h))) {
-        adviceText += `<span class='green'>Pre-flop: Strong hand – Consider raising 3-5x BB.</span><br>`;
-      } else {
-        adviceText += `<span class='yellow'>Pre-flop: Marginal – consider position and player actions.</span><br>`;
+      const community = [...flop];
+      if (turn) community.push(turn);
+      if (river) community.push(river);
+
+      const hand = [card1, card2].filter(Boolean);
+      if (hand.length < 2) {
+        document.getElementById('results').innerText = 'Please select two hole cards.';
+        return;
       }
 
-      // Post-flop evaluation (basic)
-      if (flop.length === 3) {
-        if (flop.includes(card1) || flop.includes(card2)) {
-          adviceText += `<span class='green'>Post-flop: You may have top pair – play cautiously.</span><br>`;
+      const stage = community.length < 3 ? 'Pre-Flop' : community.length === 3 ? 'Flop' : community.length === 4 ? 'Turn' : 'River';
+      let advice = `Stage: ${stage}\nPosition: ${position}\nStack: ${stack} BB\nBlinds: ${sb}/${bb}\n\n`;
+
+      const rank1 = card1.slice(0, -1);
+      const rank2 = card2.slice(0, -1);
+      const suited = card1.slice(-1) === card2.slice(-1);
+
+      if (stage === 'Pre-Flop') {
+        if (rank1 === rank2) {
+          advice += `You have a pocket pair (${rank1}s). Consider raising 2.5-3x BB.`;
+        } else if ((rank1 === 'A' || rank2 === 'A') && (rank1 === 'K' || rank2 === 'K')) {
+          advice += `Strong hand (AK). Raise confidently.`;
+        } else if (suited && (rank1 === 'K' || rank2 === 'K' || rank1 === 'Q' || rank2 === 'Q')) {
+          advice += `Suited high cards. Play aggressively in position.`;
         } else {
-          adviceText += `<span class='red'>Post-flop: Likely missed – fold to big bets.</span><br>`;
+          advice += `Speculative or weak hand. Consider folding unless you're in late position.`;
+        }
+      } else {
+        // Simple post-flop logic (example-based)
+        const allCards = [...hand, ...community];
+        const ranksOnly = allCards.map(c => c.slice(0, -1));
+        const uniqueRanks = new Set(ranksOnly);
+
+        if (uniqueRanks.size <= 3) {
+          advice += `Possible trips or full house. Evaluate strength, consider value betting.`;
+        } else if (community.length >= 3 && isFlush(allCards)) {
+          advice += `Flush or potential flush. Be cautious of board texture.`;
+        } else if (community.length >= 4 && isStraight(ranksOnly)) {
+          advice += `Straight or potential straight. Evaluate opponent play style.`;
+        } else {
+          advice += `No strong combination detected. Proceed cautiously or bluff if in position.`;
         }
       }
 
-      document.getElementById("advice").innerHTML = adviceText;
+      document.getElementById('results').innerText = advice;
     }
 
-    function resetHand() {
-      ["card1", "card2", "flop1", "flop2", "flop3", "turn", "river"].forEach(id => document.getElementById(id).value = "");
-      document.getElementById("advice").innerHTML = "";
+    function isFlush(cards) {
+      const suits = cards.map(c => c.slice(-1));
+      return suits.filter(s => s === suits[0]).length >= 5;
     }
+
+    function isStraight(ranks) {
+      const ordered = ranks.map(r => ranks.indexOf(r)).sort((a, b) => a - b);
+      for (let i = 0; i < ordered.length - 4; i++) {
+        if (ordered[i + 4] - ordered[i] === 4) return true;
+      }
+      return false;
+    }
+
+    populateCardSelects();
   </script>
 </body>
 </html>
