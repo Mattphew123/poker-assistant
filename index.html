@@ -1,130 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Flappt Fatman</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poker Assistant</title>
   <style>
     body {
-      margin: 0;
-      overflow: hidden;
-      background: skyblue;
+      background-color: #003300;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
     }
-    canvas {
-      display: block;
+    .container {
+      max-width: 600px;
       margin: auto;
-      background: #70c5ce;
+      background-color: #004d00;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px #000;
+    }
+    select, button {
+      margin: 10px;
+      padding: 10px;
+      font-size: 16px;
+    }
+    .hidden {
+      display: none;
+    }
+    .memory {
+      margin-top: 20px;
+      font-size: 18px;
+      background-color: #002200;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    .advice {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 20px;
+      background-color: #006600;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    .card-section {
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <canvas id="gameCanvas" width="400" height="600"></canvas>
+  <div class="container">
+    <h1>Poker Assistant</h1>
+
+    <label for="numPlayers">Number of Players:</label>
+    <select id="numPlayers"></select>
+
+    <label for="position">Your Position:</label>
+    <select id="position">
+      <option>Small Blind</option>
+      <option>Big Blind</option>
+      <option>UTG</option>
+      <option>UTG+1</option>
+      <option>UTG+2</option>
+      <option>MP</option>
+      <option>MP+1</option>
+      <option>HJ</option>
+      <option>CO</option>
+      <option>BTN</option>
+    </select>
+
+    <div class="card-section">
+      <h3>Hole Cards</h3>
+      <select id="hole1"></select>
+      <select id="hole2"></select>
+      <button onclick="getPreFlopAdvice()">Get Pre-Flop Advice</button>
+    </div>
+
+    <div id="flopSection" class="card-section hidden">
+      <h3>Flop</h3>
+      <select id="flop1"></select>
+      <select id="flop2"></select>
+      <select id="flop3"></select>
+      <button onclick="getFlopAdvice()">Get Flop Advice</button>
+    </div>
+
+    <div id="turnSection" class="card-section hidden">
+      <h3>Turn</h3>
+      <select id="turn"></select>
+      <button onclick="getTurnAdvice()">Get Turn Advice</button>
+    </div>
+
+    <div id="riverSection" class="card-section hidden">
+      <h3>River</h3>
+      <select id="river"></select>
+      <button onclick="getRiverAdvice()">Get River Advice</button>
+    </div>
+
+    <div class="advice" id="adviceBox"></div>
+    <div class="memory" id="memoryBox"></div>
+  </div>
 
   <script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
+    const suits = ['♠', '♥', '♦', '♣'];
+    const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+    const allCards = suits.flatMap(suit => ranks.map(rank => `${rank}${suit}`));
 
-    let fatman = {
-      x: 80,
-      y: 200,
-      width: 40,
-      height: 40,
-      gravity: 0.6,
-      lift: -10,
-      velocity: 0
-    };
-
-    let pipes = [];
-    let frame = 0;
-    let score = 0;
-    let gameOver = false;
-
-    function drawFatman() {
-      ctx.fillStyle = "#444";
-      ctx.fillRect(fatman.x, fatman.y, fatman.width, fatman.height);
-    }
-
-    function drawPipe(pipe) {
-      ctx.fillStyle = "green";
-      ctx.fillRect(pipe.x, 0, pipe.width, pipe.top);
-      ctx.fillRect(pipe.x, pipe.bottom, pipe.width, canvas.height);
-    }
-
-    function drawScore() {
-      ctx.fillStyle = "white";
-      ctx.font = "24px Arial";
-      ctx.fillText("Score: " + score, 10, 30);
-    }
-
-    function update() {
-      if (gameOver) return;
-
-      fatman.velocity += fatman.gravity;
-      fatman.y += fatman.velocity;
-
-      if (frame % 90 === 0) {
-        let gap = 130;
-        let top = Math.random() * (canvas.height - gap - 100) + 20;
-        let bottom = top + gap;
-        pipes.push({
-          x: canvas.width,
-          width: 50,
-          top: top,
-          bottom: bottom
-        });
-      }
-
-      pipes.forEach(pipe => {
-        pipe.x -= 2;
-        if (
-          fatman.x < pipe.x + pipe.width &&
-          fatman.x + fatman.width > pipe.x &&
-          (fatman.y < pipe.top || fatman.y + fatman.height > pipe.bottom)
-        ) {
-          gameOver = true;
-        }
-        if (pipe.x + pipe.width === fatman.x) {
-          score++;
-        }
+    function populateCardDropdown(id) {
+      const select = document.getElementById(id);
+      select.innerHTML = '<option value="">Select</option>';
+      allCards.forEach(card => {
+        const option = document.createElement('option');
+        option.value = card;
+        option.text = card;
+        select.appendChild(option);
       });
-
-      pipes = pipes.filter(pipe => pipe.x + pipe.width > 0);
-
-      if (fatman.y + fatman.height > canvas.height) {
-        gameOver = true;
-      }
     }
 
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawFatman();
-      pipes.forEach(drawPipe);
-      drawScore();
+    const cardFields = ['hole1', 'hole2', 'flop1', 'flop2', 'flop3', 'turn', 'river'];
+    cardFields.forEach(field => populateCardDropdown(field));
 
-      if (gameOver) {
-        ctx.fillStyle = "red";
-        ctx.font = "48px Arial";
-        ctx.fillText("Game Over", 80, canvas.height / 2);
-      }
+    const numPlayers = document.getElementById("numPlayers");
+    for (let i = 4; i <= 12; i++) {
+      const option = document.createElement("option");
+      option.value = i;
+      option.textContent = i;
+      numPlayers.appendChild(option);
     }
 
-    function loop() {
-      update();
-      draw();
-      frame++;
-      requestAnimationFrame(loop);
+    function getSelectedCards() {
+      return cardFields.map(id => document.getElementById(id).value).filter(c => c);
     }
 
-    function flap() {
-      fatman.velocity = fatman.lift;
+    function updateMemoryBox() {
+      const cards = getSelectedCards();
+      const memoryBox = document.getElementById("memoryBox");
+      memoryBox.innerHTML = cards.length ? `Selected Cards: ${cards.join(', ')}` : '';
     }
 
-    document.addEventListener("keydown", e => {
-      if (e.code === "Space") flap();
+    cardFields.forEach(id => {
+      document.getElementById(id).addEventListener('change', updateMemoryBox);
     });
-    document.addEventListener("mousedown", flap);
 
-    loop();
+    function getPreFlopAdvice() {
+      const h1 = document.getElementById('hole1').value;
+      const h2 = document.getElementById('hole2').value;
+      if (!h1 || !h2) {
+        document.getElementById('adviceBox').innerText = 'Please select both hole cards.';
+        return;
+      }
+      let advice = '';
+      const suited = h1.slice(-1) === h2.slice(-1);
+      const highCards = ['A', 'K', 'Q', 'J', '10'];
+      if (h1[0] === h2[0]) advice = 'Strong hand! Raise pre-flop.';
+      else if (highCards.includes(h1.slice(0, -1)) && highCards.includes(h2.slice(0, -1))) advice = 'High cards. Consider a raise.';
+      else if (suited) advice = 'Suited cards. Maybe call and see the flop.';
+      else advice = 'Consider folding pre-flop.';
+
+      document.getElementById('adviceBox').innerText = advice;
+      document.getElementById('flopSection').classList.remove('hidden');
+    }
+
+    function getFlopAdvice() {
+      const cards = getSelectedCards();
+      let advice = '';
+      if (cards.includes('10♠') && cards.includes('J♠') && cards.includes('Q♠') && cards.includes('K♠')) {
+        advice = 'You’re close to a straight or flush! Consider betting strong.';
+      } else {
+        advice = 'Assess hand improvement. Consider check or small bet.';
+      }
+      document.getElementById('adviceBox').innerText = advice;
+      document.getElementById('turnSection').classList.remove('hidden');
+    }
+
+    function getTurnAdvice() {
+      document.getElementById('adviceBox').innerText = 'If you’ve improved to a strong hand, consider betting. Otherwise, play cautiously.';
+      document.getElementById('riverSection').classList.remove('hidden');
+    }
+
+    function getRiverAdvice() {
+      document.getElementById('adviceBox').innerText = 'Final street. Bet strong with solid hands. Fold weak ones.';
+    }
   </script>
 </body>
 </html>
