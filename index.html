@@ -1,194 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Poker Assist Tool</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flappt Fatman</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #1a1a1a;
-      color: #ecf0f1;
-      display: flex;
-      justify-content: center;
-      padding: 20px;
       margin: 0;
+      overflow: hidden;
+      background: skyblue;
     }
-    .container {
-      background-color: #064e3b;
-      padding: 20px;
-      border-radius: 10px;
-      width: 100%;
-      max-width: 500px;
-    }
-    h1 {
-      text-align: center;
-      color: #d1fae5;
-      margin-top: 0;
-    }
-    label, select, button {
+    canvas {
       display: block;
-      width: 100%;
-      margin-top: 10px;
-      font-size: 16px;
-    }
-    select {
-      padding: 10px;
-      border-radius: 6px;
-      border: none;
-      background-color: #064e3b;
-      color: #ecf0f1;
-    }
-    button {
-      padding: 10px;
-      margin-top: 20px;
-      border: none;
-      border-radius: 6px;
-      background-color: #059669;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #047857;
-    }
-    .section {
-      display: none;
-      margin-top: 20px;
-    }
-    .active {
-      display: block;
-    }
-    .advice {
-      margin-top: 15px;
-      padding: 10px;
-      background-color: #064e3b;
-      border-left: 4px solid #10b981;
-      border-radius: 4px;
-      min-height: 40px;
-    }
-    .card-memory {
-      margin-top: 20px;
-      padding: 10px;
-      background-color: #065f46;
-      border-radius: 6px;
-      text-align: center;
-    }
-    .card-display {
-      font-size: 1.2em;
-      margin: 0 5px;
+      margin: auto;
+      background: #70c5ce;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Poker Assist Tool</h1>
-    <!-- Pre-flop -->
-    <div id="sec0" class="section active">
-      <label for="playerCount">Number of Players (4-12):</label>
-      <select id="playerCount"></select>
-
-      <label for="position">Your Position:</label>
-      <select id="position"></select>
-
-      <label for="hole1">Hole Card 1:</label>
-      <select id="hole1"></select>
-      <label for="hole2">Hole Card 2:</label>
-      <select id="hole2"></select>
-
-      <button onclick="nextStage()">Get Advice</button>
-      <div class="advice" id="advice0"></div>
-    </div>
-
-    <!-- Flop -->
-    <div id="sec1" class="section">
-      <label for="flop1">Flop Card 1:</label>
-      <select id="flop1"></select>
-      <label for="flop2">Flop Card 2:</label>
-      <select id="flop2"></select>
-      <label for="flop3">Flop Card 3:</label>
-      <select id="flop3"></select>
-
-      <button onclick="nextStage()">Get Advice</button>
-      <div class="advice" id="advice1"></div>
-    </div>
-
-    <!-- Turn -->
-    <div id="sec2" class="section">
-      <label for="turn">Turn Card:</label>
-      <select id="turn"></select>
-
-      <button onclick="nextStage()">Get Advice</button>
-      <div class="advice" id="advice2"></div>
-    </div>
-
-    <!-- River -->
-    <div id="sec3" class="section">
-      <label for="river">River Card:</label>
-      <select id="river"></select>
-
-      <button onclick="resetGame()">Get Advice</button>
-      <div class="advice" id="advice3"></div>
-    </div>
-
-    <!-- Memory -->
-    <div class="card-memory" id="memory">
-      <h3>Selected Cards:</h3>
-      <div id="cardList"></div>
-    </div>
-  </div>
+  <canvas id="gameCanvas" width="400" height="600"></canvas>
 
   <script>
-    const suits=['♠','♥','♦','♣'], vals=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
-    const cards=suits.flatMap(s=>vals.map(v=>v+s));
-    const secs=[0,1,2,3].map(i=>document.getElementById('sec'+i));
-    let stage=0;
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
 
-    // Populate player count
-    const pc=document.getElementById('playerCount');
-    for(let i=4;i<=12;i++){pc.add(new Option(i,i));}
-    pc.onchange=updatePositions;
-    updatePositions();
-    function updatePositions(){
-      const posList=['Under the Gun','UTG+1','UTG+2','Lojack','Hijack','Cutoff','Button','Small Blind','Big Blind'];
-      const cnt=parseInt(pc.value);
-      const start=posList.length-cnt;
-      const ps=document.getElementById('position'); ps.innerHTML='';
-      for(let i=start;i<posList.length;i++){ps.add(new Option(posList[i],posList[i]));}
+    let fatman = {
+      x: 80,
+      y: 200,
+      width: 40,
+      height: 40,
+      gravity: 0.6,
+      lift: -10,
+      velocity: 0
+    };
+
+    let pipes = [];
+    let frame = 0;
+    let score = 0;
+    let gameOver = false;
+
+    function drawFatman() {
+      ctx.fillStyle = "#444";
+      ctx.fillRect(fatman.x, fatman.y, fatman.width, fatman.height);
     }
 
-    // Populate card selectors and manage used cards
-    const used=new Set();
-    const selectors=['hole1','hole2','flop1','flop2','flop3','turn','river'];
-    selectors.forEach(id=>{
-      const sel=document.getElementById(id);
-      cards.forEach(c=>sel.add(new Option(c,c)));
-      sel.onchange=()=>{used.add(sel.value);updateSelectors();updateMemory();};
-    });
-    function updateSelectors(){selectors.forEach(id=>{
-        const sel=document.getElementById(id), val=sel.value;
-        sel.innerHTML='';
-        cards.forEach(c=>{
-          const o=new Option(c,c);
-          if(used.has(c)&&c!==val) o.disabled=true;
-          sel.add(o);
+    function drawPipe(pipe) {
+      ctx.fillStyle = "green";
+      ctx.fillRect(pipe.x, 0, pipe.width, pipe.top);
+      ctx.fillRect(pipe.x, pipe.bottom, pipe.width, canvas.height);
+    }
+
+    function drawScore() {
+      ctx.fillStyle = "white";
+      ctx.font = "24px Arial";
+      ctx.fillText("Score: " + score, 10, 30);
+    }
+
+    function update() {
+      if (gameOver) return;
+
+      fatman.velocity += fatman.gravity;
+      fatman.y += fatman.velocity;
+
+      if (frame % 90 === 0) {
+        let gap = 130;
+        let top = Math.random() * (canvas.height - gap - 100) + 20;
+        let bottom = top + gap;
+        pipes.push({
+          x: canvas.width,
+          width: 50,
+          top: top,
+          bottom: bottom
         });
-        sel.value=val;
-    });}
-    function updateMemory(){
-      const mem=document.getElementById('cardList');mem.innerHTML='';
-      selectors.forEach(id=>{const v=document.getElementById(id).value; if(v) mem.innerHTML+=`<span class="card-display">${v}</span>`;});
+      }
+
+      pipes.forEach(pipe => {
+        pipe.x -= 2;
+        if (
+          fatman.x < pipe.x + pipe.width &&
+          fatman.x + fatman.width > pipe.x &&
+          (fatman.y < pipe.top || fatman.y + fatman.height > pipe.bottom)
+        ) {
+          gameOver = true;
+        }
+        if (pipe.x + pipe.width === fatman.x) {
+          score++;
+        }
+      });
+
+      pipes = pipes.filter(pipe => pipe.x + pipe.width > 0);
+
+      if (fatman.y + fatman.height > canvas.height) {
+        gameOver = true;
+      }
     }
 
-    function nextStage(){
-      const adviceEls=['Raise to 3BB','Flop: Bet ½ pot on draws/TP+','Turn: Bet small if improved','River: Value bet strong hands'];
-      document.getElementById('advice'+stage).innerText=adviceEls[stage];
-      secs[stage].classList.remove('active');
-      stage++;
-      if(stage<secs.length) secs[stage].classList.add('active');
-      else stage=0;
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawFatman();
+      pipes.forEach(drawPipe);
+      drawScore();
+
+      if (gameOver) {
+        ctx.fillStyle = "red";
+        ctx.font = "48px Arial";
+        ctx.fillText("Game Over", 80, canvas.height / 2);
+      }
     }
-    function resetGame(){ nextStage(); updateMemory(); used.clear(); updateSelectors(); }
+
+    function loop() {
+      update();
+      draw();
+      frame++;
+      requestAnimationFrame(loop);
+    }
+
+    function flap() {
+      fatman.velocity = fatman.lift;
+    }
+
+    document.addEventListener("keydown", e => {
+      if (e.code === "Space") flap();
+    });
+    document.addEventListener("mousedown", flap);
+
+    loop();
   </script>
 </body>
 </html>
