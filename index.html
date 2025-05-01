@@ -1,159 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Poker Assistant</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poker Assist Sequential</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #2c3e50;
-      color: #ecf0f1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .container {
-      background-color: #34495e;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-      max-width: 500px;
-      width: 100%;
-      text-align: center;
-    }
-    select, button {
-      padding: 10px;
-      margin: 5px;
-      border-radius: 5px;
-      border: none;
-      font-size: 1rem;
-    }
-    button {
-      background-color: #1abc9c;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #16a085;
-    }
-    .section {
-      margin-bottom: 15px;
-    }
-    .advice {
-      background-color: #1c2833;
-      padding: 10px;
-      border-radius: 5px;
-      margin-top: 10px;
-    }
+    body { background: #292b2c; color: #ecf0f1; font-family: Arial, sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    .container { background: #3b3f44; padding: 20px; border-radius: 12px; width: 90%; max-width: 500px; }
+    h2 { text-align: center; margin-top: 0; }
+    label { display: block; margin-top: 15px; font-weight: bold; }
+    select, button { width: 100%; padding: 10px; margin-top: 5px; border-radius: 6px; border: none; font-size: 16px; }
+    select { background: #444; color: #ecf0f1; }
+    button { background: #1abc9c; color: white; cursor: pointer; margin-top: 20px; }
+    button:hover { background: #16a085; }
+    .section { display: none; }
+    .active { display: block; }
+    #adviceBox { margin-top: 20px; background: #1d1f21; padding: 15px; border-radius: 6px; min-height: 50px; }
   </style>
 </head>
 <body>
   <div class="container">
     <h2>Poker Assist</h2>
-    <div class="section">
+    <!-- Section 0: Pre-Flop -->
+    <div id="sec0" class="section active">
       <label for="players">Number of Players:</label>
-      <select id="players">
-        ${[...Array(9)].map((_, i) => `<option value="${i + 4}">${i + 4}</option>`).join('')}
-      </select>
+      <select id="players"></select>
+      <label for="position">Position:</label>
+      <select id="position"></select>
+      <label>Hole Card 1:</label><select id="card1"></select>
+      <label>Hole Card 2:</label><select id="card2"></select>
     </div>
-    <div class="section">
-      <label for="position">Your Position:</label>
-      <select id="position">
-        <option>UTG</option>
-        <option>UTG+1</option>
-        <option>UTG+2</option>
-        <option>MP</option>
-        <option>MP+1</option>
-        <option>HJ</option>
-        <option>CO</option>
-        <option>BTN</option>
-        <option>SB</option>
-        <option>BB</option>
-      </select>
+    <!-- Section 1: Flop -->
+    <div id="sec1" class="section">
+      <label>Flop Card 1:</label><select id="flop1"></select>
+      <label>Flop Card 2:</label><select id="flop2"></select>
+      <label>Flop Card 3:</label><select id="flop3"></select>
     </div>
-    <div class="section">
-      <label>Hole Cards:</label>
-      <select id="card1"></select>
-      <select id="card2"></select>
+    <!-- Section 2: Turn -->
+    <div id="sec2" class="section">
+      <label>Turn Card:</label><select id="turn"></select>
     </div>
-    <div class="section">
-      <label>Flop:</label>
-      <select id="flop1"></select>
-      <select id="flop2"></select>
-      <select id="flop3"></select>
+    <!-- Section 3: River -->
+    <div id="sec3" class="section">
+      <label>River Card:</label><select id="river"></select>
     </div>
-    <div class="section">
-      <label>Turn:</label>
-      <select id="turn"></select>
-    </div>
-    <div class="section">
-      <label>River:</label>
-      <select id="river"></select>
-    </div>
-    <button onclick="getAdvice()">Get Advice</button>
-    <div class="advice" id="advice"></div>
+    <button id="actionBtn">Get Advice</button>
+    <div id="adviceBox"></div>
   </div>
-
-  <script>
-    const suits = ['♠', '♥', '♦', '♣'];
-    const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
-    const cards = suits.flatMap(s => ranks.map(r => `${r}${s}`));
-
-    ['card1', 'card2', 'flop1', 'flop2', 'flop3', 'turn', 'river'].forEach(id => {
-      const select = document.getElementById(id);
-      cards.forEach(card => {
-        const opt = document.createElement('option');
-        opt.value = card;
-        opt.innerText = card;
-        select.appendChild(opt);
-      });
-    });
-
-    function getAdvice() {
-      const card1 = document.getElementById('card1').value;
-      const card2 = document.getElementById('card2').value;
-      const pos = document.getElementById('position').value;
-      const flop = [
-        document.getElementById('flop1').value,
-        document.getElementById('flop2').value,
-        document.getElementById('flop3').value
-      ];
-      const turn = document.getElementById('turn').value;
-      const river = document.getElementById('river').value;
-
-      let advice = '';
-      const suited = card1.slice(-1) === card2.slice(-1);
-      const rank1 = card1.slice(0, -1);
-      const rank2 = card2.slice(0, -1);
-      const strongPairs = ['A', 'K', 'Q', 'J', '10'];
-
-      const pair = rank1 === rank2;
-      const highCards = strongPairs.includes(rank1) && strongPairs.includes(rank2);
-
-      if (!flop[0]) {
-        if (pair && strongPairs.includes(rank1)) {
-          advice = 'Raise to 3 BB';
-        } else if (highCards && suited) {
-          advice = 'Raise to 2.5 BB';
-        } else if (highCards || suited) {
-          advice = 'Call';
-        } else {
-          advice = 'Fold';
-        }
-      } else if (!turn) {
-        advice = 'If hit: Bet 1/2 pot. Else: Check or fold to big bet';
-      } else if (!river) {
-        advice = 'Bet if you have draw or pair. Else: Check';
-      } else {
-        advice = 'Value bet or check-call with top pair or better';
-      }
-
-      document.getElementById('advice').innerText = advice;
-    }
-  </script>
+<script>
+  // Setup
+  const suits=['♠','♥','♦','♣'], ranks=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+  const cards = suits.flatMap(s=>ranks.map(r=>r+s));
+  // Populate player count
+  const playersSel=document.getElementById('players');
+  for(let i=4;i<=12;i++){let o=document.createElement('option');o.value=i;o.text=i+' Players';playersSel.append(o);}  
+  // Populate positions dynamic by count
+  function updatePositions(){
+    const posList=['UTG','UTG+1','MP','MP+1','HJ','CO','BTN','SB','BB'];
+    const count=parseInt(playersSel.value);
+    const startIndex=posList.length-count;
+    const posSel=document.getElementById('position'); posSel.innerHTML='';
+    for(let i=startIndex;i<posList.length;i++){let o=document.createElement('option');o.value=posList[i];o.text=posList[i];posSel.append(o);}  }
+  playersSel.addEventListener('change',updatePositions);
+  updatePositions();
+  // Populate all card dropdowns
+  ['card1','card2','flop1','flop2','flop3','turn','river'].forEach(id=>{
+    const sel=document.getElementById(id);cards.forEach(c=>{let o=document.createElement('option');o.value=c;o.text=c;sel.append(o);});
+  });
+  // Sequential logic
+  let stage=0;
+  const sections=[0,1,2,3].map(i=>document.getElementById('sec'+i));
+  const btn=document.getElementById('actionBtn');
+  const adviceBox=document.getElementById('adviceBox');
+  btn.onclick=()=>{
+    let advice='';
+    const c1=document.getElementById('card1').value,c2=document.getElementById('card2').value;
+    const pair=c1.slice(0,-1)===c2.slice(0,-1), suited=c1.slice(-1)===c2.slice(-1);
+    const strong=['A','K','Q','J','10'];
+    if(stage===0){ // pre-flop
+      if(pair&&strong.includes(c1.slice(0,-1))) advice='Raise to 3BB';
+      else if(strong.includes(c1[0])&&strong.includes(c2[0])&&suited) advice='Raise to 2.5BB';
+      else if(strong.includes(c1[0])||suited) advice='Call';
+      else advice='Fold';
+    } else if(stage===1){ advice='Flop: Bet ½ pot with top pair or draw; else check/fold'; }
+    else if(stage===2){ advice='Turn: Bet small if improved; else check'; }
+    else if(stage===3){ advice='River: Value bet strong hands; fold if missed'; }
+    adviceBox.innerText=advice;
+    // move to next
+    sections[stage].classList.remove('active'); stage++;
+    if(stage<sections.length){sections[stage].classList.add('active'); btn.innerText=stage<3?'Get Advice':'Get River Advice';}
+    else{btn.innerText='New Hand'; stage=0; sections[0].classList.add('active');}
+  };
+</script>
 </body>
 </html>
