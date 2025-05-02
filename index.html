@@ -1,206 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Poker Assistant</title>
   <style>
     body {
+      background-color: #2f4f4f;
       font-family: Arial, sans-serif;
-      background-color: #003300;
       color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      flex-direction: column;
     }
-
     .container {
-      background-color: #014d01;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-      max-width: 500px;
-      width: 100%;
+      width: 80%;
+      margin: 0 auto;
+      padding-top: 20px;
     }
-
-    select,
-    button {
+    h1 {
+      text-align: center;
+      color: #32cd32;
+    }
+    select, button {
+      padding: 10px;
       margin: 5px;
-      padding: 5px;
+      background-color: #32cd32;
+      border: none;
+      border-radius: 5px;
+      color: white;
     }
-
+    .card-select {
+      width: 100px;
+      margin-bottom: 10px;
+    }
+    .position-select {
+      width: 200px;
+    }
     .section {
       margin-bottom: 20px;
     }
-
-    .advice-box {
-      background-color: #006600;
-      padding: 10px;
-      border-radius: 5px;
-      margin-top: 10px;
-    }
-
-    .title {
-      text-align: center;
-      font-size: 24px;
-      margin-bottom: 20px;
-    }
-
-    .selected-cards {
-      background-color: #002200;
-      padding: 10px;
-      border-radius: 5px;
-      margin-top: 20px;
-    }
   </style>
 </head>
-
 <body>
-  <div class="container">
-    <div class="title">Poker Assistant</div>
 
-    <div class="section">
-      <label>Number of Players:</label>
-      <select id="playerCount">
-        ${[...Array(9)].map((_, i) => `<option value="${i + 4}">${i + 4}</option>`).join('')}
-      </select>
+<div class="container">
+  <h1>Poker Assistant</h1>
 
-      <label>Your Position:</label>
-      <select id="position">
-        <option>UTG</option>
-        <option>UTG+1</option>
-        <option>MP</option>
-        <option>CO</option>
-        <option>BTN</option>
-        <option>SB</option>
-        <option>BB</option>
-      </select>
-    </div>
-
-    <div class="section">
-      <label>Small Blind:</label>
-      <input type="number" id="sb" value="10">
-      <label>Big Blind:</label>
-      <input type="number" id="bb" value="20">
-    </div>
-
-    <div class="section">
-      <label>Hole Cards:</label>
-      <select id="hole1"></select>
-      <select id="hole2"></select>
-      <button onclick="getPreFlopAdvice()">Get Pre-Flop Advice</button>
-    </div>
-
-    <div class="section" id="flopSection" style="display:none">
-      <label>Flop:</label>
-      <select id="flop1"></select>
-      <select id="flop2"></select>
-      <select id="flop3"></select>
-      <button onclick="getFlopAdvice()">Get Flop Advice</button>
-    </div>
-
-    <div class="section" id="turnSection" style="display:none">
-      <label>Turn:</label>
-      <select id="turn"></select>
-      <button onclick="getTurnAdvice()">Get Turn Advice</button>
-    </div>
-
-    <div class="section" id="riverSection" style="display:none">
-      <label>River:</label>
-      <select id="river"></select>
-      <button onclick="getRiverAdvice()">Get River Advice</button>
-    </div>
-
-    <div id="advice" class="advice-box"></div>
-    <div class="selected-cards" id="selectedCards"></div>
+  <div class="section">
+    <h2>Player Information</h2>
+    <label for="numPlayers">Number of Players:</label>
+    <select id="numPlayers"></select>
+    <label for="position">Your Position:</label>
+    <select id="position" class="position-select">
+      <option value="UTG">Under the Gun</option>
+      <option value="EP">Early Position</option>
+      <option value="MP">Middle Position</option>
+      <option value="CO">Cutoff</option>
+      <option value="BTN">Button</option>
+      <option value="SB">Small Blind</option>
+      <option value="BB">Big Blind</option>
+    </select>
   </div>
 
-  <script>
-    const suits = ['♠', '♥', '♦', '♣'];
-    const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
-    const cards = suits.flatMap(suit => ranks.map(rank => `${rank}${suit}`));
+  <div class="section">
+    <h2>Your Cards</h2>
+    <select id="card1" class="card-select"></select>
+    <select id="card2" class="card-select"></select>
+  </div>
 
-    function populateDropdown(id) {
-      const select = document.getElementById(id);
-      select.innerHTML = '<option value="">Select</option>' + cards.map(card => `<option value="${card}">${card}</option>`).join('');
-    }
+  <div class="section">
+    <h2>Community Cards</h2>
+    <select id="flop1" class="card-select"></select>
+    <select id="flop2" class="card-select"></select>
+    <select id="flop3" class="card-select"></select>
+    <select id="turn" class="card-select"></select>
+    <select id="river" class="card-select"></select>
+  </div>
 
-    ['hole1', 'hole2', 'flop1', 'flop2', 'flop3', 'turn', 'river'].forEach(populateDropdown);
+  <div class="section">
+    <button id="getAdviceBtn">Get Advice</button>
+    <p id="advice"></p>
+  </div>
+</div>
 
-    let selected = [];
+<script>
+  // Generate number of players dropdown
+  const numPlayersSelect = document.getElementById('numPlayers');
+  for (let i = 4; i <= 12; i++) {
+    const option = document.createElement('option');
+    option.value = i;
+    option.textContent = i;
+    numPlayersSelect.appendChild(option);
+  }
 
-    function getSelectedCards() {
-      const allIds = ['hole1', 'hole2', 'flop1', 'flop2', 'flop3', 'turn', 'river'];
-      return allIds.map(id => document.getElementById(id).value).filter(val => val);
-    }
+  const allCards = [
+    "2♠", "2♣", "2♦", "2♥",
+    "3♠", "3♣", "3♦", "3♥",
+    "4♠", "4♣", "4♦", "4♥",
+    "5♠", "5♣", "5♦", "5♥",
+    "6♠", "6♣", "6♦", "6♥",
+    "7♠", "7♣", "7♦", "7♥",
+    "8♠", "8♣", "8♦", "8♥",
+    "9♠", "9♣", "9♦", "9♥",
+    "10♠", "10♣", "10♦", "10♥",
+    "J♠", "J♣", "J♦", "J♥",
+    "Q♠", "Q♣", "Q♦", "Q♥",
+    "K♠", "K♣", "K♦", "K♥",
+    "A♠", "A♣", "A♦", "A♥"
+  ];
 
-    function showSelectedCards() {
-      const cards = getSelectedCards();
-      if (cards.length > 0) {
-        document.getElementById('selectedCards').textContent = `Selected Cards: ${cards.join(', ')}`;
-      } else {
-        document.getElementById('selectedCards').textContent = '';
-      }
-    }
+  const selectedCards = [];
 
-    function showNextSection(id) {
-      document.getElementById(id).style.display = 'block';
-    }
+  // Create card dropdowns
+  function createCardDropdown(id) {
+    const selectElement = document.getElementById(id);
+    allCards.forEach(card => {
+      const option = document.createElement('option');
+      option.value = card;
+      option.textContent = card;
+      selectElement.appendChild(option);
+    });
+  }
 
-    function evaluateHand(cards) {
-      const ranks = cards.map(c => c.slice(0, -1));
-      const suits = cards.map(c => c.slice(-1));
-      const counts = {};
-      const suitCounts = {};
-      ranks.forEach(r => counts[r] = (counts[r] || 0) + 1);
-      suits.forEach(s => suitCounts[s] = (suitCounts[s] || 0) + 1);
-      const values = Object.values(counts).sort((a, b) => b - a);
-      const hasFlush = Object.values(suitCounts).some(c => c >= 5);
+  // Disable previously selected cards
+  function disableSelectedCards() {
+    const dropdowns = document.querySelectorAll('.card-select');
+    dropdowns.forEach(dropdown => {
+      const selectedValue = dropdown.value;
+      Array.from(dropdown.options).forEach(option => {
+        option.disabled = selectedCards.includes(option.value) && option.value !== selectedValue;
+      });
+    });
+  }
 
-      if (values[0] === 4) return 'Four of a Kind – Push strong';
-      if (values[0] === 3 && values[1] === 2) return 'Full House – Go big';
-      if (hasFlush) return 'Flush – Play strong';
-      if (values[0] === 3) return 'Three of a Kind – Raise or call';
-      if (values[0] === 2 && values[1] === 2) return 'Two Pair – Consider raising';
-      if (values[0] === 2) return 'One Pair – Consider calling';
-      return 'No strong hand – Fold or bluff wisely';
-    }
-
-    function getPreFlopAdvice() {
-      const h1 = document.getElementById('hole1').value;
-      const h2 = document.getElementById('hole2').value;
-      if (!h1 || !h2) return;
-      showSelectedCards();
-      document.getElementById('advice').textContent = evaluateHand([h1, h2]);
-      showNextSection('flopSection');
-    }
-
-    function getFlopAdvice() {
-      const cards = getSelectedCards();
-      if (cards.length < 5) return;
-      showSelectedCards();
-      document.getElementById('advice').textContent = evaluateHand(cards.slice(0, 5));
-      showNextSection('turnSection');
-    }
-
-    function getTurnAdvice() {
-      const cards = getSelectedCards();
-      if (cards.length < 6) return;
-      showSelectedCards();
-      document.getElementById('advice').textContent = evaluateHand(cards.slice(0, 6));
-      showNextSection('riverSection');
-    }
-
-    function getRiverAdvice() {
-      const cards = getSelectedCards();
-      if (cards.length < 7) return;
-      showSelectedCards();
-      document.getElementById('advice').textContent = evaluateHand(cards);
-    }
-  </script>
-</body>
-
-</html>
+  // Initialize card dropdowns
+  createCardDropdown('card1');
