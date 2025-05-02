@@ -1,155 +1,206 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Poker Assist</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poker Assistant</title>
   <style>
     body {
-      background-color: #1e1e1e;
-      color: white;
       font-family: Arial, sans-serif;
+      background-color: #003300;
+      color: white;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
-      padding: 20px;
+      min-height: 100vh;
+      flex-direction: column;
     }
-    select, button {
-      margin: 5px;
-      padding: 10px;
-      font-size: 1rem;
-      border-radius: 5px;
-    }
-    .section {
-      margin: 20px 0;
+
+    .container {
+      background-color: #014d01;
       padding: 20px;
-      background-color: #2f4f2f;
       border-radius: 10px;
-      width: 90%;
-      max-width: 600px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+      width: 100%;
     }
-    .hidden { display: none; }
-    .card-display { margin-top: 10px; }
+
+    select,
+    button {
+      margin: 5px;
+      padding: 5px;
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    .advice-box {
+      background-color: #006600;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+
+    .title {
+      text-align: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .selected-cards {
+      background-color: #002200;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
   </style>
 </head>
+
 <body>
-  <h1>Poker Assist Tool</h1>
+  <div class="container">
+    <div class="title">Poker Assistant</div>
 
-  <div class="section">
-    <h2>Your Hole Cards</h2>
-    <div id="holeCards"></div>
-    <button onclick="showAdvice('preflop')">Get Preflop Advice</button>
-    <div id="preflopAdvice"></div>
-  </div>
+    <div class="section">
+      <label>Number of Players:</label>
+      <select id="playerCount">
+        ${[...Array(9)].map((_, i) => `<option value="${i + 4}">${i + 4}</option>`).join('')}
+      </select>
 
-  <div class="section hidden" id="flopSection">
-    <h2>Flop Cards</h2>
-    <div id="flopCards"></div>
-    <button onclick="showAdvice('flop')">Get Flop Advice</button>
-    <div id="flopAdvice"></div>
-  </div>
+      <label>Your Position:</label>
+      <select id="position">
+        <option>UTG</option>
+        <option>UTG+1</option>
+        <option>MP</option>
+        <option>CO</option>
+        <option>BTN</option>
+        <option>SB</option>
+        <option>BB</option>
+      </select>
+    </div>
 
-  <div class="section hidden" id="turnSection">
-    <h2>Turn Card</h2>
-    <div id="turnCard"></div>
-    <button onclick="showAdvice('turn')">Get Turn Advice</button>
-    <div id="turnAdvice"></div>
-  </div>
+    <div class="section">
+      <label>Small Blind:</label>
+      <input type="number" id="sb" value="10">
+      <label>Big Blind:</label>
+      <input type="number" id="bb" value="20">
+    </div>
 
-  <div class="section hidden" id="riverSection">
-    <h2>River Card</h2>
-    <div id="riverCard"></div>
-    <button onclick="showAdvice('river')">Get River Advice</button>
-    <div id="riverAdvice"></div>
+    <div class="section">
+      <label>Hole Cards:</label>
+      <select id="hole1"></select>
+      <select id="hole2"></select>
+      <button onclick="getPreFlopAdvice()">Get Pre-Flop Advice</button>
+    </div>
+
+    <div class="section" id="flopSection" style="display:none">
+      <label>Flop:</label>
+      <select id="flop1"></select>
+      <select id="flop2"></select>
+      <select id="flop3"></select>
+      <button onclick="getFlopAdvice()">Get Flop Advice</button>
+    </div>
+
+    <div class="section" id="turnSection" style="display:none">
+      <label>Turn:</label>
+      <select id="turn"></select>
+      <button onclick="getTurnAdvice()">Get Turn Advice</button>
+    </div>
+
+    <div class="section" id="riverSection" style="display:none">
+      <label>River:</label>
+      <select id="river"></select>
+      <button onclick="getRiverAdvice()">Get River Advice</button>
+    </div>
+
+    <div id="advice" class="advice-box"></div>
+    <div class="selected-cards" id="selectedCards"></div>
   </div>
 
   <script>
-    const allCards = [];
     const suits = ['♠', '♥', '♦', '♣'];
     const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+    const cards = suits.flatMap(suit => ranks.map(rank => `${rank}${suit}`));
 
-    suits.forEach(suit => {
-      ranks.forEach(rank => {
-        allCards.push(`${rank}${suit}`);
-      });
-    });
+    function populateDropdown(id) {
+      const select = document.getElementById(id);
+      select.innerHTML = '<option value="">Select</option>' + cards.map(card => `<option value="${card}">${card}</option>`).join('');
+    }
 
-    function createDropdown(id, count) {
-      const container = document.getElementById(id);
-      container.innerHTML = '';
-      for (let i = 0; i < count; i++) {
-        const select = document.createElement('select');
-        select.id = `${id}_${i}`;
-        allCards.forEach(card => {
-          const option = document.createElement('option');
-          option.value = card;
-          option.text = card;
-          select.appendChild(option);
-        });
-        container.appendChild(select);
+    ['hole1', 'hole2', 'flop1', 'flop2', 'flop3', 'turn', 'river'].forEach(populateDropdown);
+
+    let selected = [];
+
+    function getSelectedCards() {
+      const allIds = ['hole1', 'hole2', 'flop1', 'flop2', 'flop3', 'turn', 'river'];
+      return allIds.map(id => document.getElementById(id).value).filter(val => val);
+    }
+
+    function showSelectedCards() {
+      const cards = getSelectedCards();
+      if (cards.length > 0) {
+        document.getElementById('selectedCards').textContent = `Selected Cards: ${cards.join(', ')}`;
+      } else {
+        document.getElementById('selectedCards').textContent = '';
       }
     }
 
-    function showAdvice(stage) {
-      const hole = [
-        document.getElementById('holeCards_0').value,
-        document.getElementById('holeCards_1').value
-      ];
-      const flop = [
-        document.getElementById('flopCards_0')?.value,
-        document.getElementById('flopCards_1')?.value,
-        document.getElementById('flopCards_2')?.value
-      ];
-      const turn = [document.getElementById('turnCard_0')?.value];
-      const river = [document.getElementById('riverCard_0')?.value];
-
-      let cards = [...hole];
-      if (stage !== 'preflop') cards.push(...flop);
-      if (stage === 'turn' || stage === 'river') cards.push(...turn);
-      if (stage === 'river') cards.push(...river);
-
-      const advice = evaluateHand(cards);
-      document.getElementById(`${stage}Advice`).innerText = advice;
-
-      if (stage === 'preflop') document.getElementById('flopSection').classList.remove('hidden');
-      if (stage === 'flop') document.getElementById('turnSection').classList.remove('hidden');
-      if (stage === 'turn') document.getElementById('riverSection').classList.remove('hidden');
+    function showNextSection(id) {
+      document.getElementById(id).style.display = 'block';
     }
 
     function evaluateHand(cards) {
-      const values = cards.map(c => c.slice(0, -1));
+      const ranks = cards.map(c => c.slice(0, -1));
       const suits = cards.map(c => c.slice(-1));
-      const valueCounts = {};
-      values.forEach(v => valueCounts[v] = (valueCounts[v] || 0) + 1);
-      const counts = Object.values(valueCounts).sort((a,b) => b - a);
+      const counts = {};
+      const suitCounts = {};
+      ranks.forEach(r => counts[r] = (counts[r] || 0) + 1);
+      suits.forEach(s => suitCounts[s] = (suitCounts[s] || 0) + 1);
+      const values = Object.values(counts).sort((a, b) => b - a);
+      const hasFlush = Object.values(suitCounts).some(c => c >= 5);
 
-      const isFlush = suits.every(s => s === suits[0]);
-      const uniqueValues = [...new Set(values.map(v => ranks.indexOf(v)).filter(i => i >= 0).sort((a,b) => a - b))];
-      let isStraight = false;
-      for (let i = 0; i <= uniqueValues.length - 5; i++) {
-        if (uniqueValues[i+4] - uniqueValues[i] === 4) {
-          isStraight = true;
-          break;
-        }
-      }
-
-      if (isStraight && isFlush) return "Straight Flush - Bet strong or raise";
-      if (counts[0] === 4) return "Four of a Kind - Raise or go all in";
-      if (counts[0] === 3 && counts[1] === 2) return "Full House - Raise";
-      if (isFlush) return "Flush - Bet strong";
-      if (isStraight) return "Straight - Bet moderately";
-      if (counts[0] === 3) return "Three of a Kind - Bet or raise";
-      if (counts[0] === 2 && counts[1] === 2) return "Two Pair - Call or raise";
-      if (counts[0] === 2) return "One Pair - Consider calling";
-
-      return "High Card - Fold unless in good position";
+      if (values[0] === 4) return 'Four of a Kind – Push strong';
+      if (values[0] === 3 && values[1] === 2) return 'Full House – Go big';
+      if (hasFlush) return 'Flush – Play strong';
+      if (values[0] === 3) return 'Three of a Kind – Raise or call';
+      if (values[0] === 2 && values[1] === 2) return 'Two Pair – Consider raising';
+      if (values[0] === 2) return 'One Pair – Consider calling';
+      return 'No strong hand – Fold or bluff wisely';
     }
 
-    // Create dropdowns initially
-    createDropdown('holeCards', 2);
-    createDropdown('flopCards', 3);
-    createDropdown('turnCard', 1);
-    createDropdown('riverCard', 1);
+    function getPreFlopAdvice() {
+      const h1 = document.getElementById('hole1').value;
+      const h2 = document.getElementById('hole2').value;
+      if (!h1 || !h2) return;
+      showSelectedCards();
+      document.getElementById('advice').textContent = evaluateHand([h1, h2]);
+      showNextSection('flopSection');
+    }
+
+    function getFlopAdvice() {
+      const cards = getSelectedCards();
+      if (cards.length < 5) return;
+      showSelectedCards();
+      document.getElementById('advice').textContent = evaluateHand(cards.slice(0, 5));
+      showNextSection('turnSection');
+    }
+
+    function getTurnAdvice() {
+      const cards = getSelectedCards();
+      if (cards.length < 6) return;
+      showSelectedCards();
+      document.getElementById('advice').textContent = evaluateHand(cards.slice(0, 6));
+      showNextSection('riverSection');
+    }
+
+    function getRiverAdvice() {
+      const cards = getSelectedCards();
+      if (cards.length < 7) return;
+      showSelectedCards();
+      document.getElementById('advice').textContent = evaluateHand(cards);
+    }
   </script>
 </body>
+
 </html>
