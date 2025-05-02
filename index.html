@@ -37,6 +37,9 @@
     .section {
       margin-bottom: 20px;
     }
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -45,33 +48,25 @@
   <h1>Poker Assistant</h1>
 
   <div class="section">
-    <h2>Player Information</h2>
-    <label for="numPlayers">Number of Players:</label>
-    <select id="numPlayers"></select>
-    <label for="position">Your Position:</label>
-    <select id="position" class="position-select">
-      <option value="UTG">Under the Gun</option>
-      <option value="EP">Early Position</option>
-      <option value="MP">Middle Position</option>
-      <option value="CO">Cutoff</option>
-      <option value="BTN">Button</option>
-      <option value="SB">Small Blind</option>
-      <option value="BB">Big Blind</option>
-    </select>
-  </div>
-
-  <div class="section">
     <h2>Your Cards</h2>
     <select id="card1" class="card-select"></select>
     <select id="card2" class="card-select"></select>
   </div>
 
-  <div class="section">
-    <h2>Community Cards</h2>
+  <div class="section hidden" id="flopSection">
+    <h2>Flop</h2>
     <select id="flop1" class="card-select"></select>
     <select id="flop2" class="card-select"></select>
     <select id="flop3" class="card-select"></select>
+  </div>
+
+  <div class="section hidden" id="turnSection">
+    <h2>Turn</h2>
     <select id="turn" class="card-select"></select>
+  </div>
+
+  <div class="section hidden" id="riverSection">
+    <h2>River</h2>
     <select id="river" class="card-select"></select>
   </div>
 
@@ -155,6 +150,15 @@
     });
   });
 
+  // Show the next section (flop, turn, river)
+  function showNextSection(sectionId) {
+    const sections = ['flopSection', 'turnSection', 'riverSection'];
+    sections.forEach(id => {
+      document.getElementById(id).classList.add('hidden');
+    });
+    document.getElementById(sectionId).classList.remove('hidden');
+  }
+
   // Provide advice based on selected cards
   document.getElementById('getAdviceBtn').addEventListener('click', () => {
     const adviceElement = document.getElementById('advice');
@@ -164,10 +168,27 @@
     const river = document.getElementById('river').value;
 
     // Simulate advice logic (simple placeholder for now)
-    if (holeCards[0] && holeCards[1]) {
-      adviceElement.textContent = "Advice: Raise or call based on your hole cards!";
+    if (holeCards[0] && holeCards[1] && flop[0] && flop[1] && flop[2]) {
+      adviceElement.textContent = "Advice: Based on your hole cards and the flop, consider raising.";
+    } else if (holeCards[0] && holeCards[1] && flop[0] && flop[1]) {
+      adviceElement.textContent = "Advice: Consider calling or checking.";
     } else {
-      adviceElement.textContent = "Advice: Please select your hole cards.";
+      adviceElement.textContent = "Advice: Please select your cards and community cards.";
+    }
+
+    // Show the flop after hole cards are selected
+    if (holeCards[0] && holeCards[1]) {
+      showNextSection('flopSection');
+    }
+
+    // Show the turn after flop
+    if (flop[0] && flop[1] && flop[2]) {
+      showNextSection('turnSection');
+    }
+
+    // Show the river after turn
+    if (turn) {
+      showNextSection('riverSection');
     }
   });
 </script>
