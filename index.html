@@ -79,6 +79,7 @@
     <button id="getAdviceBtn">Get Advice</button>
     <p id="advice"></p>
   </div>
+
 </div>
 
 <script>
@@ -133,3 +134,43 @@
 
   // Initialize card dropdowns
   createCardDropdown('card1');
+  createCardDropdown('card2');
+  createCardDropdown('flop1');
+  createCardDropdown('flop2');
+  createCardDropdown('flop3');
+  createCardDropdown('turn');
+  createCardDropdown('river');
+
+  // Handle card selection
+  const cardSelectors = document.querySelectorAll('.card-select');
+  cardSelectors.forEach(selector => {
+    selector.addEventListener('change', (e) => {
+      const selectedCard = e.target.value;
+      if (selectedCards.includes(selectedCard)) {
+        e.target.value = ""; // Reset selection if card is already selected
+        return;
+      }
+      selectedCards.push(selectedCard);
+      disableSelectedCards();
+    });
+  });
+
+  // Provide advice based on selected cards
+  document.getElementById('getAdviceBtn').addEventListener('click', () => {
+    const adviceElement = document.getElementById('advice');
+    const holeCards = [document.getElementById('card1').value, document.getElementById('card2').value];
+    const flop = [document.getElementById('flop1').value, document.getElementById('flop2').value, document.getElementById('flop3').value];
+    const turn = document.getElementById('turn').value;
+    const river = document.getElementById('river').value;
+
+    // Simulate advice logic (simple placeholder for now)
+    if (holeCards[0] && holeCards[1]) {
+      adviceElement.textContent = "Advice: Raise or call based on your hole cards!";
+    } else {
+      adviceElement.textContent = "Advice: Please select your hole cards.";
+    }
+  });
+</script>
+
+</body>
+</html>
