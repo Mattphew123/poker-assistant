@@ -20,7 +20,6 @@
   <div class="container">
     <h1>Poker Assistant</h1>
 
-    <!-- Player Info -->
     <div class="section" id="infoSection">
       <label>Number of Players</label>
       <select id="numPlayers"></select>
@@ -39,7 +38,6 @@
       <label>Big Blind</label><input type="number" id="bb" value="20"/>
     </div>
 
-    <!-- Hole Cards -->
     <div class="section" id="holeSection">
       <h2>Hole Cards</h2>
       <select id="hole1" class="card-select"></select>
@@ -48,7 +46,6 @@
       <div id="advicePre"></div>
     </div>
 
-    <!-- Flop -->
     <div class="section hidden" id="flopSection">
       <h2>Flop</h2>
       <select id="flop1" class="card-select"></select>
@@ -58,7 +55,6 @@
       <div id="adviceFlop"></div>
     </div>
 
-    <!-- Turn -->
     <div class="section hidden" id="turnSection">
       <h2>Turn</h2>
       <select id="turn" class="card-select"></select>
@@ -66,7 +62,6 @@
       <div id="adviceTurn"></div>
     </div>
 
-    <!-- River -->
     <div class="section hidden" id="riverSection">
       <h2>River</h2>
       <select id="river" class="card-select"></select>
@@ -76,32 +71,21 @@
   </div>
 
   <script>
-    // Setup player count
     const numPlayers = document.getElementById('numPlayers');
     for (let i = 4; i <= 12; i++) numPlayers.add(new Option(i, i));
 
-    // Build deck
     const suits = ['♠','♥','♦','♣'], ranks = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
     const deck = suits.flatMap(s=>ranks.map(r=>r+s));
-    const used = new Set();
 
-    // One-time populate dropdowns
-    ['hole1','hole2','flop1','flop2','flop3','turn','river']
-      .forEach(id => {
+    const selects = ['hole1','hole2','flop1','flop2','flop3','turn','river'];
+    function getUsedCards() {
+      return selects.map(id => document.getElementById(id).value).filter(v => v);
+    }
+
+    function updateDropdowns() {
+      const used = new Set(getUsedCards());
+      selects.forEach(id => {
         const sel = document.getElementById(id);
-        deck.forEach(card => sel.add(new Option(card, card)));
-        sel.addEventListener('change', () => {
-          const v = sel.value;
-          if (v && !used.has(v)) {
-            used.add(v);
-            disableDuplicates();
-          }
-        });
-      });
-
-    // Disable selected cards elsewhere
-    function disableDuplicates() {
-      document.querySelectorAll('.card-select').forEach(sel => {
         const current = sel.value;
         Array.from(sel.options).forEach(opt => {
           opt.disabled = used.has(opt.value) && opt.value !== current;
@@ -109,43 +93,74 @@
       });
     }
 
-    // Gather selected cards
-    function cardsSoFar() {
-      return ['hole1','hole2','flop1','flop2','flop3','turn','river']
-        .map(id=>document.getElementById(id).value)
-        .filter(v=>v);
+    selects.forEach(id => {
+      const sel = document.getElementById(id);
+      deck.forEach(card => sel.add(new Option(card, card)));
+      sel.addEventListener('change', updateDropdowns);
+    });
+
+    function countDuplicates(cards) {
+      const counts = {};
+      cards.forEach(card => {
+        const rank = card.slice(0, -1);
+        counts[rank] = (counts[rank] || 0) + 1;
+      });
+      return Object.values(counts);
     }
 
-    // Placeholder evaluator
     function evaluate(cards) {
-      const suitsOnly = cards.map(c=>c.slice(-1));
-      if (cards.length>=5 && suitsOnly.every(s=>s===suitsOnly[0])) {
-        return 'Flush – strong bet';
+      if (cards.length < 2) return "Not enough cards";
+      const suitsOnly = cards.map(c => c.slice(-1));
+      const isFlush = suitsOnly.every(s => s === suitsOnly[0]);
+      const duplicates = countDuplicates(cards);
+      let hand = "";
+
+      if (cards.length === 2) {
+        if (duplicates.includes(2)) {
+          hand = "Pair – around 50% chance heads-up";
+        } else {
+          hand = "Unpaired – depends on position and opponents";
+        }
+      } else {
+        if (duplicates.includes(4)) {
+          hand = "Four of a Kind – >99% win rate";
+        } else if (duplicates.includes(3) && duplicates.includes(2)) {
+          hand = "Full House – ~95% win rate";
+        } else if (isFlush) {
+          hand = "Flush – ~85% win rate";
+        } else if (duplicates.includes(3)) {
+          hand = "Three of a Kind – ~65% win rate";
+        } else if (duplicates.filter(v=>v===2).length === 2) {
+          hand = "Two Pair – ~54% win rate";
+        } else if (duplicates.includes(2)) {
+          hand = "One Pair – ~40% win rate";
+        } else {
+          hand = "High Card – very weak hand";
+        }
       }
-      return `Hand with ${cards.length} cards`;
+      return `${hand}`;
     }
 
-    // Advice functions
     function advisePreflop(){
-      const hole = cardsSoFar().slice(0,2);
+      const hole = getUsedCards().slice(0,2);
       if (hole.length<2) return alert('Select both hole cards');
       document.getElementById('advicePre').innerText = evaluate(hole);
       document.getElementById('flopSection').classList.remove('hidden');
     }
     function adviseFlop(){
-      const c = cardsSoFar().slice(0,5);
+      const c = getUsedCards().slice(0,5);
       if (c.length<5) return alert('Select all flop cards');
       document.getElementById('adviceFlop').innerText = evaluate(c);
       document.getElementById('turnSection').classList.remove('hidden');
     }
     function adviseTurn(){
-      const c = cardsSoFar().slice(0,6);
+      const c = getUsedCards().slice(0,6);
       if (c.length<6) return alert('Select the turn card');
       document.getElementById('adviceTurn').innerText = evaluate(c);
       document.getElementById('riverSection').classList.remove('hidden');
     }
     function adviseRiver(){
-      const c = cardsSoFar();
+      const c = getUsedCards();
       if (c.length<7) return alert('Select the river card');
       document.getElementById('adviceRiver').innerText = evaluate(c);
     }
