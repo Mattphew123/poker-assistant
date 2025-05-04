@@ -5,469 +5,199 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Advanced Poker Assistant</title>
   <style>
-    body { 
-      background: #003300; 
-      color: #fff; 
-      font-family: Arial, sans-serif; 
-      padding: 20px;
-      line-height: 1.6;
-    }
-    .container { 
-      max-width: 800px; 
-      margin: auto; 
-    }
-    h1 { 
-      text-align: center; 
-      color: #a3ffba; 
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-    }
-    .section { 
-      background: #014d01; 
-      padding: 20px; 
-      border-radius: 8px; 
-      margin-bottom: 20px; 
-      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    }
-    .cards-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    label { 
-      display: block; 
-      margin-top: 10px; 
-      font-weight: bold;
-    }
-    select, input, button { 
-      display: block; 
-      width: 100%; 
-      margin-top: 8px; 
-      font-size: 1rem; 
-      padding: 8px;
-      border-radius: 4px;
-      border: 1px solid #32cd32;
-      background: #002200;
-      color: white;
-    }
-    .card-select {
-      width: 80px;
-    }
-    button { 
-      background: #32cd32; 
-      border: none; 
-      border-radius: 5px; 
-      padding: 12px; 
-      cursor: pointer; 
-      font-weight: bold;
-      margin-top: 15px;
-      transition: background 0.3s ease;
-    }
-    button:hover { 
-      background: #28a428; 
-    }
-    .hidden { 
-      display: none; 
-    }
-    .advice-box { 
-      margin-top: 15px; 
-      background: #026602; 
-      padding: 15px; 
-      border-radius: 5px;
-      border-left: 5px solid #a3ffba;
-    }
-    .red {
-      color: #ff6666;
-    }
-    .hand-strength {
-      font-size: 1.2em;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-    .hand-advice {
-      margin-top: 10px;
-    }
-    .betting-section {
-      margin-top: 15px;
-      padding-top: 15px;
-      border-top: 1px solid #32cd32;
-    }
-    .betting-inputs {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .betting-input-group {
-      flex: 1;
-      min-width: 120px;
-    }
-    .odds {
-      font-weight: bold;
-      color: #a3ffba;
-    }
-    .heart, .diamond {
-      color: #ff6666;
-    }
-    .spade, .club {
-      color: #ffffff;
-    }
-    .toggle-button {
-      background: #014d01;
-      color: #a3ffba;
-      padding: 5px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      display: inline-block;
-      margin-top: 10px;
-      font-size: 0.9em;
-    }
-    .tab-container {
-      display: flex;
-      margin-bottom: 15px;
-    }
-    .tab {
-      padding: 10px 20px;
-      background: #014d01;
-      cursor: pointer;
-      border-radius: 5px 5px 0 0;
-      margin-right: 5px;
-    }
-    .tab.active {
-      background: #026602;
-      font-weight: bold;
-    }
-    .stats-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-    }
-    .stats-table th, .stats-table td {
-      padding: 8px;
-      text-align: left;
-      border-bottom: 1px solid #32cd32;
-    }
-    .stats-table th {
-      background: #014d01;
-    }
-    .starting-hands-grid {
-      display: grid;
-      grid-template-columns: repeat(13, 1fr);
-      gap: 2px;
-      margin-top: 15px;
-      font-size: 0.7em;
-      text-align: center;
-    }
-    .grid-cell {
-      padding: 4px 2px;
-      background: #014d01;
-      border-radius: 2px;
-    }
-    .premium {
-      background: #a80000;
-    }
-    .strong {
-      background: #cc6600;
-    }
-    .playable {
-      background: #666600;
-    }
-    .speculative {
-      background: #006600;
-    }
-    .weak {
-      background: #003366;
-    }
+    body { background: #003300; color: #fff; font-family: Arial, sans-serif; padding: 20px; }
+    .container { max-width: 800px; margin: auto; }
+    h1 { text-align: center; color: #a3ffba; text-shadow: 1px 1px 3px #000; }
+    h2 { color: #a3ffba; margin-top: 0; }
+    .section { background: #014d01; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+    label, select, input, button { display: block; width: 100%; margin-top: 10px; font-size: 1rem; padding: 8px; box-sizing: border-box; }
+    select, input { background: #026602; color: white; border: 1px solid #32cd32; border-radius: 4px; }
+    button { background: #32cd32; border: none; border-radius: 5px; padding: 10px; cursor: pointer; }
+    button:hover { background: #28a428; }
+    .hidden { display: none; }
+    .advice { margin-top: 10px; background: #026602; padding: 10px; border-radius: 5px; }
+    .card-select { margin-bottom: 10px; }
+    .cards-container { display: flex; gap: 10px; flex-wrap: wrap; }
+    .card-item { flex: 1; min-width: 80px; }
+    .card-item select { width: 100%; }
+    .advice-title { font-weight: bold; margin-top: 10px; }
+    .hand-strength { font-weight: bold; color: #ffcc00; }
+    option:disabled { color: #666; }
+    .tab-container { display: flex; margin-bottom: 15px; }
+    .tab { background: #014d01; padding: 10px 20px; border-radius: 5px 5px 0 0; margin-right: 5px; cursor: pointer; }
+    .tab.active { background: #32cd32; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Advanced Poker Assistant</h1>
     
-    <div class="tab-container">
-      <div class="tab active" onclick="switchTab('mainTab')">Hand Analyzer</div>
-      <div class="tab" onclick="switchTab('strategyTab')">Strategy Guide</div>
-      <div class="tab" onclick="switchTab('oddsTab')">Odds Calculator</div>
+    <!-- Game Info Section -->
+    <div class="section" id="gameInfoSection">
+      <h2>Game Information</h2>
+      <div class="form-row">
+        <label for="numPlayers">Number of Players</label>
+        <select id="numPlayers"></select>
+      </div>
+      <div class="form-row">
+        <label for="position">Your Position</label>
+        <select id="position">
+          <option value="utg">Under the Gun</option>
+          <option value="utg1">Under the Gun +1</option>
+          <option value="mp">Middle Position</option>
+          <option value="hj">Hijack</option>
+          <option value="co">Cutoff</option>
+          <option value="btn">Button</option>
+          <option value="sb">Small Blind</option>
+          <option value="bb">Big Blind</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label for="sb">Small Blind</label>
+        <input type="number" id="sb" value="10"/>
+      </div>
+      <div class="form-row">
+        <label for="bb">Big Blind</label>
+        <input type="number" id="bb" value="20"/>
+      </div>
     </div>
 
-    <div id="mainTab">
-      <div class="section" id="infoSection">
-        <h2>Game Information</h2>
-        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-          <div style="flex: 1;">
-            <label>Game Type</label>
-            <select id="gameType">
-              <option value="cash">Cash Game</option>
-              <option value="tournament">Tournament</option>
-            </select>
-            
-            <label>Number of Players</label>
-            <select id="numPlayers"></select>
-            
-            <label>Your Position</label>
-            <select id="position">
-              <option value="utg">Under the Gun (UTG)</option>
-              <option value="utg1">UTG+1</option>
-              <option value="mp">Middle Position</option>
-              <option value="hj">Hijack</option>
-              <option value="co">Cutoff</option>
-              <option value="btn">Button</option>
-              <option value="sb">Small Blind</option>
-              <option value="bb">Big Blind</option>
-            </select>
-          </div>
-          
-          <div style="flex: 1;">
-            <label>Small Blind</label>
-            <input type="number" id="sb" value="10"/>
-            
-            <label>Big Blind</label>
-            <input type="number" id="bb" value="20"/>
-            
-            <label>Your Stack</label>
-            <input type="number" id="stack" value="2000"/>
-          </div>
+    <!-- Hole Cards -->
+    <div class="section" id="holeSection">
+      <h2>Hole Cards</h2>
+      <div class="cards-container">
+        <div class="card-item">
+          <label for="hole1">Card 1</label>
+          <select id="hole1" class="card-select"></select>
+        </div>
+        <div class="card-item">
+          <label for="hole2">Card 2</label>
+          <select id="hole2" class="card-select"></select>
         </div>
       </div>
+      <button id="preflopBtn" onclick="advisePreflop()">Get Pre-Flop Advice</button>
+      <div id="advicePre" class="advice"></div>
+    </div>
 
-      <div class="section" id="holeSection">
-        <h2>Hole Cards</h2>
-        <div class="cards-row">
-          <div>
-            <label>Card 1</label>
-            <select id="hole1" class="card-select"></select>
-          </div>
-          <div>
-            <label>Card 2</label>
-            <select id="hole2" class="card-select"></select>
-          </div>
+    <!-- Flop -->
+    <div class="section hidden" id="flopSection">
+      <h2>Flop</h2>
+      <div class="cards-container">
+        <div class="card-item">
+          <label for="flop1">Card 1</label>
+          <select id="flop1" class="card-select"></select>
         </div>
-        <button onclick="advisePreflop()">Get Pre-Flop Advice</button>
-        <div id="advicePre" class="advice-box hidden"></div>
+        <div class="card-item">
+          <label for="flop2">Card 2</label>
+          <select id="flop2" class="card-select"></select>
+        </div>
+        <div class="card-item">
+          <label for="flop3">Card 3</label>
+          <select id="flop3" class="card-select"></select>
+        </div>
       </div>
+      <button id="flopBtn" onclick="adviseFlop()">Get Flop Advice</button>
+      <div id="adviceFlop" class="advice"></div>
+    </div>
 
-      <div class="section hidden" id="flopSection">
-        <h2>Flop</h2>
-        <div class="cards-row">
-          <div>
-            <label>Card 1</label>
-            <select id="flop1" class="card-select"></select>
-          </div>
-          <div>
-            <label>Card 2</label>
-            <select id="flop2" class="card-select"></select>
-          </div>
-          <div>
-            <label>Card 3</label>
-            <select id="flop3" class="card-select"></select>
-          </div>
+    <!-- Turn -->
+    <div class="section hidden" id="turnSection">
+      <h2>Turn</h2>
+      <div class="cards-container">
+        <div class="card-item">
+          <label for="turn">Turn Card</label>
+          <select id="turn" class="card-select"></select>
         </div>
-        
-        <div class="betting-section">
-          <h3>Betting Info</h3>
-          <div class="betting-inputs">
-            <div class="betting-input-group">
-              <label>Pot Size</label>
-              <input type="number" id="flopPot" value="60"/>
-            </div>
-            <div class="betting-input-group">
-              <label>To Call</label>
-              <input type="number" id="flopCall" value="0"/>
-            </div>
-            <div class="betting-input-group">
-              <label>Players In Hand</label>
-              <input type="number" id="flopPlayers" value="3" min="2" max="12"/>
-            </div>
-          </div>
-        </div>
-        
-        <button onclick="adviseFlop()">Get Flop Advice</button>
-        <div id="adviceFlop" class="advice-box hidden"></div>
       </div>
+      <button id="turnBtn" onclick="adviseTurn()">Get Turn Advice</button>
+      <div id="adviceTurn" class="advice"></div>
+    </div>
 
-      <div class="section hidden" id="turnSection">
-        <h2>Turn</h2>
-        <div class="cards-row">
-          <div>
-            <label>Card</label>
-            <select id="turn" class="card-select"></select>
-          </div>
+    <!-- River -->
+    <div class="section hidden" id="riverSection">
+      <h2>River</h2>
+      <div class="cards-container">
+        <div class="card-item">
+          <label for="river">River Card</label>
+          <select id="river" class="card-select"></select>
         </div>
-        
-        <div class="betting-section">
-          <h3>Betting Info</h3>
-          <div class="betting-inputs">
-            <div class="betting-input-group">
-              <label>Pot Size</label>
-              <input type="number" id="turnPot" value="120"/>
-            </div>
-            <div class="betting-input-group">
-              <label>To Call</label>
-              <input type="number" id="turnCall" value="0"/>
-            </div>
-            <div class="betting-input-group">
-              <label>Players In Hand</label>
-              <input type="number" id="turnPlayers" value="2" min="2" max="10"/>
-            </div>
-          </div>
-        </div>
-        
-        <button onclick="adviseTurn()">Get Turn Advice</button>
-        <div id="adviceTurn" class="advice-box hidden"></div>
       </div>
-
-      <div class="section hidden" id="riverSection">
-        <h2>River</h2>
-        <div class="cards-row">
-          <div>
-            <label>Card</label>
-            <select id="river" class="card-select"></select>
-          </div>
-        </div>
-        
-        <div class="betting-section">
-          <h3>Betting Info</h3>
-          <div class="betting-inputs">
-            <div class="betting-input-group">
-              <label>Pot Size</label>
-              <input type="number" id="riverPot" value="250"/>
-            </div>
-            <div class="betting-input-group">
-              <label>To Call</label>
-              <input type="number" id="riverCall" value="0"/>
-            </div>
-            <div class="betting-input-group">
-              <label>Players In Hand</label>
-              <input type="number" id="riverPlayers" value="2" min="2" max="8"/>
-            </div>
-          </div>
-        </div>
-        
-        <button onclick="adviseRiver()">Get River Advice</button>
-        <div id="adviceRiver" class="advice-box hidden"></div>
-      </div>
-      
-      <button onclick="resetGame()" style="background: #666; margin-top: 20px;">Reset Game</button>
+      <button id="riverBtn" onclick="adviseRiver()">Get River Advice</button>
+      <div id="adviceRiver" class="advice"></div>
     </div>
     
-    <div id="strategyTab" class="hidden">
-      <div class="section">
-        <h2>Hand Rankings</h2>
-        <table class="stats-table">
-          <tr>
-            <th>Hand</th>
-            <th>Description</th>
-            <th>Example</th>
-          </tr>
-          <tr>
-            <td>Royal Flush</td>
-            <td>A, K, Q, J, 10 of the same suit</td>
-            <td>A♥ K♥ Q♥ J♥ 10♥</td>
-          </tr>
-          <tr>
-            <td>Straight Flush</td>
-            <td>Five cards in sequence, all of the same suit</td>
-            <td>9♣ 8♣ 7♣ 6♣ 5♣</td>
-          </tr>
-          <tr>
-            <td>Four of a Kind</td>
-            <td>Four cards of the same rank</td>
-            <td>Q♥ Q♦ Q♣ Q♠ 7♥</td>
-          </tr>
-          <tr>
-            <td>Full House</td>
-            <td>Three of a kind plus a pair</td>
-            <td>J♥ J♣ J♠ 8♦ 8♥</td>
-          </tr>
-          <tr>
-            <td>Flush</td>
-            <td>Five cards of the same suit, not in sequence</td>
-            <td>K♠ J♠ 8♠ 4♠ 3♠</td>
-          </tr>
-          <tr>
-            <td>Straight</td>
-            <td>Five cards in sequence, not all of same suit</td>
-            <td>Q♣ J♥ 10♠ 9♦ 8♣</td>
-          </tr>
-          <tr>
-            <td>Three of a Kind</td>
-            <td>Three cards of the same rank</td>
-            <td>10♥ 10♣ 10♠ K♦ 3♥</td>
-          </tr>
-          <tr>
-            <td>Two Pair</td>
-            <td>Two different pairs</td>
-            <td>A♥ A♣ 7♦ 7♠ 4♥</td>
-          </tr>
-          <tr>
-            <td>One Pair</td>
-            <td>Two cards of the same rank</td>
-            <td>9♥ 9♣ A♠ J♦ 3♥</td>
-          </tr>
-          <tr>
-            <td>High Card</td>
-            <td>Highest card plays when no other hand is made</td>
-            <td>A♥ J♦ 8♣ 7♠ 2♥</td>
-          </tr>
-        </table>
-      </div>
-    </div>
+    <!-- Reset Button -->
+    <button id="resetBtn" onclick="resetGame()">Reset Game</button>
   </div>
 
   <script>
-    // Populate number of players dropdown
+    // Setup player count (1-12)
     const numPlayers = document.getElementById('numPlayers');
-    for (let i = 2; i <= 10; i++) {
+    for (let i = 1; i <= 12; i++) {
       numPlayers.add(new Option(i, i));
     }
-    numPlayers.value = 6; // Default to 6 players
-    
-    // Define card suits and ranks
+    // Default to 9 players
+    numPlayers.value = 9;
+
+    // Card generation and management
     const suits = ['♠','♥','♦','♣'];
-    const suitClasses = {'♠': 'spade', '♥': 'heart', '♦': 'diamond', '♣': 'club'};
     const ranks = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
-    const rankValues = {'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14};
+    const deck = [];
     
-    // Create the full deck of cards
-    let deck = [];
-    for (let s of suits) {
-      for (let r of ranks) {
-        deck.push({rank: r, suit: s, display: `${r}${s}`, value: rankValues[r]});
+    // Generate deck with proper card values
+    for (let s = 0; s < suits.length; s++) {
+      for (let r = 0; r < ranks.length; r++) {
+        const cardText = ranks[r] + suits[s];
+        const cardValue = (r + 2) + '-' + suits[s]; // 2-A as 2-14 plus suit
+        deck.push({text: cardText, value: cardValue});
       }
     }
     
-    // Populate all card selects with the deck
-    const cardSelects = ['hole1','hole2','flop1','flop2','flop3','turn','river'];
-    cardSelects.forEach(id => {
+    // Track used cards
+    const usedCards = new Set();
+    
+    // Populate all card selectors
+    const cardSelectors = ['hole1', 'hole2', 'flop1', 'flop2', 'flop3', 'turn', 'river'];
+    
+    cardSelectors.forEach(id => {
       const select = document.getElementById(id);
-      // Add empty option
-      select.add(new Option('Select', ''));
       
-      // Add all cards with colored suits
+      // Add empty option first
+      select.add(new Option('Select a card', ''));
+      
+      // Add all cards
       deck.forEach(card => {
-        const option = new Option('', card.display);
-        option.innerHTML = `<span class="${suitClasses[card.suit]}">${card.display}</span>`;
-        select.add(option);
+        select.add(new Option(card.text, card.value));
       });
       
-      // Add change event to track used cards
-      select.addEventListener('change', updateAvailableCards);
+      // Add change listener to update usedCards set
+      select.addEventListener('change', () => {
+        updateSelectedCards();
+      });
     });
     
-    // Track used cards and update dropdowns
-    function updateAvailableCards() {
-      const usedCards = new Set();
+    // Update the set of used cards and disable in other selectors
+    function updateSelectedCards() {
+      // Clear the set and rebuild it
+      usedCards.clear();
       
-      // Collect all selected cards
-      cardSelects.forEach(id => {
-        const value = document.getElementById(id).value;
-        if (value) usedCards.add(value);
+      // Get currently selected cards
+      cardSelectors.forEach(id => {
+        const select = document.getElementById(id);
+        const value = select.value;
+        if (value) {
+          usedCards.add(value);
+        }
       });
       
-      // Update each dropdown to disable used cards
-      cardSelects.forEach(id => {
+      // Update all selectors to disable used cards
+      cardSelectors.forEach(id => {
         const select = document.getElementById(id);
         const currentValue = select.value;
         
-        // Skip the currently selected value when disabling
+        // Update options
         Array.from(select.options).forEach(option => {
           if (option.value && option.value !== currentValue) {
             option.disabled = usedCards.has(option.value);
@@ -476,545 +206,280 @@
       });
     }
     
-    // Tab switching functionality
-    function switchTab(tabId) {
-      // Hide all tabs
-      document.getElementById('mainTab').classList.add('hidden');
-      document.getElementById('strategyTab').classList.add('hidden');
-      document.getElementById('oddsTab').classList.add('hidden');
-      
-      // Show selected tab
-      document.getElementById(tabId).classList.remove('hidden');
-      
-      // Update tab styling
-      document.querySelectorAll('.tab').forEach(tab => {
-        tab.classList.remove('active');
-      });
-      
-      // Find the tab that was clicked
-      document.querySelectorAll('.tab').forEach(tab => {
-        if (tab.textContent.includes(tabId.replace('Tab', ''))) {
-          tab.classList.add('active');
-        }
-      });
-    }
-    
-    // Convert card string to card object
-    function parseCard(cardStr) {
-      if (!cardStr) return null;
-      const suit = cardStr.slice(-1);
-      const rank = cardStr.slice(0, -1);
-      return {
-        rank: rank,
-        suit: suit,
-        value: rankValues[rank] || 0
-      };
-    }
-    
-    // Get all selected cards as objects
-    function getSelectedCards() {
-      return cardSelects
-        .map(id => document.getElementById(id).value)
-        .filter(card => card)
-        .map(parseCard);
-    }
-    
     // Hand evaluation functions
+    
+    // Get card info from value
+    function parseCard(cardValue) {
+      if (!cardValue) return null;
+      const parts = cardValue.split('-');
+      return {
+        rank: parseInt(parts[0]),
+        suit: parts[1]
+      };
+    }
+    
+    // Convert selected cards to usable format
+    function getSelectedCards() {
+      return cardSelectors
+        .map(id => {
+          const value = document.getElementById(id).value;
+          return value ? parseCard(value) : null;
+        })
+        .filter(card => card !== null);
+    }
+    
+    // Evaluate hand strength
     function evaluateHand(cards) {
-      if (cards.length < 5) return { type: 'Incomplete', rank: 0, description: 'Need at least 5 cards' };
+      if (!cards || cards.length === 0) return { type: 'Nothing', rank: 0, description: 'No cards selected' };
       
-      // Sort cards by value (high to low)
-      cards.sort((a, b) => b.value - a.value);
-      
-      // Check for royal flush
-      if (isRoyalFlush(cards)) return { 
-        type: 'Royal Flush', 
-        rank: 10,
-        description: 'The best possible hand in poker!'
-      };
-      
-      // Check for straight flush
-      const straightFlush = isStraightFlush(cards);
-      if (straightFlush) return { 
-        type: 'Straight Flush', 
-        rank: 9,
-        description: `${straightFlush.high} high straight flush`
-      };
-      
-      // Check for four of a kind
-      const fourOfAKind = isFourOfAKind(cards);
-      if (fourOfAKind) return { 
-        type: 'Four of a Kind', 
-        rank: 8,
-        description: `Four ${fourOfAKind.rank}s with ${fourOfAKind.kicker} kicker`
-      };
-      
-      // Check for full house
-      const fullHouse = isFullHouse(cards);
-      if (fullHouse) return { 
-        type: 'Full House', 
-        rank: 7,
-        description: `${fullHouse.three}s full of ${fullHouse.two}s`
-      };
-      
-      // Check for flush
-      const flush = isFlush(cards);
-      if (flush) return { 
-        type: 'Flush', 
-        rank: 6,
-        description: `${flush.high} high flush`
-      };
-      
-      // Check for straight
-      const straight = isStraight(cards);
-      if (straight) return { 
-        type: 'Straight', 
-        rank: 5,
-        description: `${straight.high} high straight`
-      };
-      
-      // Check for three of a kind
-      const threeOfAKind = isThreeOfAKind(cards);
-      if (threeOfAKind) return { 
-        type: 'Three of a Kind', 
-        rank: 4,
-        description: `Three ${threeOfAKind.rank}s`
-      };
-      
-      // Check for two pair
-      const twoPair = isTwoPair(cards);
-      if (twoPair) return { 
-        type: 'Two Pair', 
-        rank: 3,
-        description: `${twoPair.high}s and ${twoPair.low}s with ${twoPair.kicker} kicker`
-      };
-      
-      // Check for one pair
-      const onePair = isOnePair(cards);
-      if (onePair) return { 
-        type: 'One Pair', 
-        rank: 2,
-        description: `Pair of ${onePair.rank}s`
-      };
-      
-      // High card
-      return { 
-        type: 'High Card', 
-        rank: 1,
-        description: `${cards[0].rank} high`
-      };
-    }
-    
-    function isRoyalFlush(cards) {
-      const flush = isFlush(cards);
-      if (!flush) return false;
-      
-      const royalValues = [14, 13, 12, 11, 10]; // A, K, Q, J, 10
-      const flushCards = cards.filter(card => card.suit === flush.suit);
-      
-      for (let value of royalValues) {
-        if (!flushCards.some(card => card.value === value)) {
-          return false;
-        }
-      }
-      
-      return true;
-    }
-    
-    function isStraightFlush(cards) {
-      const flush = isFlush(cards);
-      if (!flush) return false;
-      
-      const flushCards = cards.filter(card => card.suit === flush.suit);
-      const straight = isStraight(flushCards);
-      
-      return straight ? { high: straight.high } : false;
-    }
-    
-    function isFourOfAKind(cards) {
-      const rankCounts = countRanks(cards);
-      
-      for (let rank in rankCounts) {
-        if (rankCounts[rank] === 4) {
-          // Find kicker (highest card that's not part of the four of a kind)
-          const kickers = cards.filter(card => card.rank !== rank);
-          return {
-            rank: rank,
-            kicker: kickers.length > 0 ? kickers[0].rank : null
-          };
-        }
-      }
-      
-      return false;
-    }
-    
-    function isFullHouse(cards) {
-      const rankCounts = countRanks(cards);
-      let threeOfAKindRank = null;
-      let pairRank = null;
-      
-      for (let rank in rankCounts) {
-        if (rankCounts[rank] >= 3) {
-          threeOfAKindRank = rank;
-          break;
-        }
-      }
-      
-      if (!threeOfAKindRank) return false;
-      
-      for (let rank in rankCounts) {
-        if (rank !== threeOfAKindRank && rankCounts[rank] >= 2) {
-          pairRank = rank;
-          break;
-        }
-      }
-      
-      return threeOfAKindRank && pairRank ? { three: threeOfAKindRank, two: pairRank } : false;
-    }
-    
-    function isFlush(cards) {
-      const suitCounts = {};
-      cards.forEach(card => {
-        suitCounts[card.suit] = (suitCounts[card.suit] || 0) + 1;
-      });
-      
-      for (let suit in suitCounts) {
-        if (suitCounts[suit] >= 5) {
-          const flushCards = cards.filter(card => card.suit === suit);
-          flushCards.sort((a, b) => b.value - a.value);
-          return { 
-            suit: suit, 
-            high: flushCards[0].rank
-          };
-        }
-      }
-      
-      return false;
-    }
-    
-    function isStraight(cards) {
-      if (cards.length < 5) return false;
-      
-      // Extract unique values and sort
-      const values = [...new Set(cards.map(card => card.value))].sort((a, b) => b - a);
-      
-      // Handle A-5 straight (where Ace is low)
-      if (values.includes(14) && values.includes(5) && values.includes(4) && values.includes(3) && values.includes(2)) {
-        return { high: '5' };
-      }
-      
-      // Check for normal straights
-      for (let i = 0; i <= values.length - 5; i++) {
-        if (values[i] - values[i+4] === 4) {
-          // Convert high card value back to rank
-          const highValue = values[i];
-          const highRank = Object.keys(rankValues).find(key => rankValues[key] === highValue);
-          return { high: highRank };
-        }
-      }
-      
-      return false;
-    }
-    
-    function isThreeOfAKind(cards) {
-      const rankCounts = countRanks(cards);
-      
-      for (let rank in rankCounts) {
-        if (rankCounts[rank] === 3) {
-          return { rank: rank };
-        }
-      }
-      
-      return false;
-    }
-    
-    function isTwoPair(cards) {
-      const rankCounts = countRanks(cards);
-      const pairs = [];
-      
-      for (let rank in rankCounts) {
-        if (rankCounts[rank] >= 2) {
-          pairs.push(rank);
-        }
-      }
-      
-      if (pairs.length >= 2) {
-        // Sort pairs by rank value
-        pairs.sort((a, b) => rankValues[b] - rankValues[a]);
-        
-        // Find kicker
-        const pairRanks = new Set(pairs.slice(0, 2));
-        const kickers = cards.filter(card => !pairRanks.has(card.rank));
-        kickers.sort((a, b) => b.value - a.value);
-        
-        return {
-          high: pairs[0],
-          low: pairs[1],
-          kicker: kickers.length > 0 ? kickers[0].rank : null
+      // For now, a simple evaluation based on count
+      if (cards.length < 5) {
+        return { 
+          type: 'Incomplete', 
+          rank: 0, 
+          description: 'Not enough cards to evaluate a complete hand'
         };
       }
       
-      return false;
-    }
-    
-    function isOnePair(cards) {
-      const rankCounts = countRanks(cards);
+      // Check for flush
+      const suits = cards.map(c => c.suit);
+      const uniqueSuits = new Set(suits);
       
-      for (let rank in rankCounts) {
-        if (rankCounts[rank] === 2) {
-          return { rank: rank };
+      if (uniqueSuits.size === 1) {
+        return { 
+          type: 'Flush', 
+          rank: 5,
+          description: 'All cards of the same suit'
+        };
+      }
+      
+      // Count ranks
+      const rankCounts = {};
+      cards.forEach(card => {
+        rankCounts[card.rank] = (rankCounts[card.rank] || 0) + 1;
+      });
+      
+      // Check for pairs, three of a kind, etc.
+      const counts = Object.values(rankCounts).sort((a, b) => b - a);
+      
+      if (counts[0] === 4) {
+        return { 
+          type: 'Four of a Kind', 
+          rank: 7,
+          description: 'Four cards of the same rank'
+        };
+      }
+      
+      if (counts[0] === 3 && counts[1] === 2) {
+        return { 
+          type: 'Full House', 
+          rank: 6,
+          description: 'Three of a kind plus a pair'
+        };
+      }
+      
+      if (counts[0] === 3) {
+        return { 
+          type: 'Three of a Kind', 
+          rank: 3,
+          description: 'Three cards of the same rank'
+        };
+      }
+      
+      if (counts[0] === 2 && counts[1] === 2) {
+        return { 
+          type: 'Two Pair', 
+          rank: 2,
+          description: 'Two different pairs'
+        };
+      }
+      
+      if (counts[0] === 2) {
+        return { 
+          type: 'One Pair', 
+          rank: 1,
+          description: 'A pair of cards of the same rank'
+        };
+      }
+      
+      // Check for straight
+      const ranks = cards.map(c => c.rank).sort((a, b) => a - b);
+      const uniqueRanks = [...new Set(ranks)];
+      
+      let isStraight = false;
+      if (uniqueRanks.length >= 5) {
+        for (let i = 0; i <= uniqueRanks.length - 5; i++) {
+          if (uniqueRanks[i + 4] - uniqueRanks[i] === 4) {
+            isStraight = true;
+            break;
+          }
+        }
+        
+        // Check for A-5 straight
+        if (!isStraight && uniqueRanks.includes(14)) { // Ace present
+          const lowAceStraight = [2, 3, 4, 5, 14];
+          if (lowAceStraight.every(r => uniqueRanks.includes(r))) {
+            isStraight = true;
+          }
         }
       }
       
-      return false;
+      if (isStraight) {
+        return { 
+          type: 'Straight', 
+          rank: 4,
+          description: 'Five cards in sequential rank'
+        };
+      }
+      
+      return { 
+        type: 'High Card', 
+        rank: 0,
+        description: 'No matching cards, evaluated by highest card'
+      };
     }
     
-    function countRanks(cards) {
-      const counts = {};
-      cards.forEach(card => {
-        counts[card.rank] = (counts[card.rank] || 0) + 1;
-      });
-      return counts;
-    }
-    
-    // Pre-flop hand evaluation
-    function evaluatePreFlopHand(cards) {
-      if (cards.length !== 2) return "Need exactly 2 cards";
+    // Get pre-flop advice
+    function getPreFlopAdvice(cards, position) {
+      if (cards.length < 2) return "Please select both hole cards.";
       
-      const [card1, card2] = cards;
-      const isPair = card1.rank === card2.rank;
-      const isSuited = card1.suit === card2.suit;
-      const gap = Math.abs(card1.value - card2.value);
-      const position = document.getElementById('position').value;
-      const numPlayersValue = parseInt(document.getElementById('numPlayers').value);
+      // Sort cards by rank (high to low)
+      cards.sort((a, b) => b.rank - a.rank);
       
-      let handStrength = '';
-      let playability = '';
-      let advice = '';
+      const isPair = cards[0].rank === cards[1].rank;
+      const isSuited = cards[0].suit === cards[1].suit;
+      const isConnector = Math.abs(cards[0].rank - cards[1].rank) <= 2;
+      const highCard = cards[0].rank;
+      const lowCard = cards[1].rank;
       
-      // Evaluate hand strength
-      if (isPair) {
-        if (card1.value >= 10) {
-          handStrength = 'Premium Pair';
-          playability = 'Strong';
-        } else if (card1.value >= 7) {
-          handStrength = 'Medium Pair';
-          playability = 'Playable';
+      // Basic premium hands
+      if (isPair && highCard >= 10) { // JJ, QQ, KK, AA
+        return "Premium pair. Raise 3-4x BB from any position.";
+      }
+      
+      if (highCard === 14 && lowCard >= 10) { // AK, AQ, AJ, AT
+        if (isSuited) {
+          return "Premium suited Ace. Raise 3x BB from any position.";
         } else {
-          handStrength = 'Small Pair';
-          playability = 'Speculative';
+          return "Strong Ace. Raise 3x BB from middle to late position, call from early.";
         }
-      } else if (card1.value >= 12 && card2.value >= 12) { // Both cards are face cards or Ace
-        handStrength = 'High Cards';
-        playability = isSuited ? 'Strong' : 'Playable';
-      } else if (card1.value === 14 || card2.value === 14) { // One card is an Ace
-        const kicker = card1.value === 14 ? card2.value : card1.value;
-        if (kicker >= 10) {
-          handStrength = 'Ace with High Kicker';
-          playability = 'Strong';
-        } else if (isSuited) {
-          handStrength = 'Suited Ace';
-          playability = 'Playable';
-        } else {
-          handStrength = 'Ace with Low Kicker';
-          playability = 'Speculative';
-        }
-      } else if (gap <= 2 && card1.value >= 9 && card2.value >= 9) {
-        handStrength = 'Connected High Cards';
-        playability = isSuited ? 'Playable' : 'Speculative';
-      } else if (gap <= 2 && isSuited) {
-        handStrength = 'Suited Connectors';
-        playability = 'Speculative';
-      } else {
-        handStrength = 'Unpaired Low Cards';
-        playability = 'Weak';
       }
       
       // Position-based advice
-      const isEarlyPosition = ['utg', 'utg1'].includes(position);
-      const isMiddlePosition = ['mp', 'hj'].includes(position);
-      const isLatePosition = ['co', 'btn'].includes(position);
-      const isBlind = ['sb', 'bb'].includes(position);
+      const earlyPositions = ['utg', 'utg1', 'mp'];
+      const middlePositions = ['hj', 'co'];
+      const latePositions = ['btn', 'sb', 'bb'];
       
-      // Generate appropriate advice based on hand strength and position
-      if (playability === 'Strong') {
-        if (isEarlyPosition) {
-          advice = 'Raise to 3-4BB. This is a premium hand worth playing from any position.';
-        } else if (isMiddlePosition || isLatePosition) {
-          advice = 'Raise to 3BB. Strong hand in good position.';
-        } else if (isBlind) {
-          advice = position === 'sb' ? 'Raise to 3-4BB' : 'Raise if facing limpers, otherwise check';
-        }
-      } else if (playability === 'Playable') {
-        if (isEarlyPosition) {
-          advice = 'Consider folding in early position unless your table is passive.';
-        } else if (isMiddlePosition) {
-          advice = 'Raise to 3BB with few limpers, otherwise call.';
-        } else if (isLatePosition) {
-          advice = 'Raise to 2.5-3BB. Good stealing opportunity.';
-        } else if (isBlind) {
-          advice = position === 'sb' ? 'Complete or fold vs aggressive players' : 'Check if possible, otherwise call small raises';
-        }
-      } else if (playability === 'Speculative') {
-        if (isEarlyPosition) {
-          advice = 'Fold. Too weak for early position.';
-        } else if (isMiddlePosition) {
-          advice = 'Fold unless there are multiple limpers.';
-        } else if (isLatePosition) {
-          advice = 'Call if there are limpers, or raise as a steal attempt if folded to you.';
-        } else if (isBlind) {
-          advice = 'Check if possible, call small raises if you can get good pot odds.';
-        }
-      } else { // Weak
-        if (isLatePosition && numPlayersValue <= 4) {
-          advice = 'Consider stealing if folded to you, otherwise fold.';
-        } else if (position === 'bb') {
-          advice = 'Check if possible, fold to raises unless getting great pot odds.';
-        } else {
-          advice = 'Fold. This hand has poor showdown value.';
-        }
-      }
+      let positionType = 'middle';
+      if (earlyPositions.includes(position)) positionType = 'early';
+      if (latePositions.includes(position)) positionType = 'late';
       
-      if (isPair && card1.value >= 13) { // JJ+
-        advice += ' Be cautious with overcards on the flop.';
-      }
-      
-      if (isSuited && (playability === 'Playable' || playability === 'Speculative')) {
-        advice += ' Look to flop a flush draw or better.';
-      }
-      
-      return {
-        handType: isPair ? `Pair of ${card1.rank}s` : (isSuited ? `${card1.rank}-${card2.rank} Suited` : `${card1.rank}-${card2.rank} Offsuit`),
-        strength: handStrength,
-        playability: playability,
-        advice: advice
-      };
-    }
-    
-    // Post-flop hand evaluation
-    function evaluatePostFlopStrategy(handEval, stage) {
-      const hand = handEval.type;
-      const handRank = handEval.rank;
-      const potSize = parseInt(document.getElementById(`${stage}Pot`).value);
-      const toCall = parseInt(document.getElementById(`${stage}Call`).value);
-      const playersLeft = parseInt(document.getElementById(`${stage}Players`).value);
-      
-      let strategy, actionAdvice;
-      
-      // Calculate pot odds
-      const potOdds = toCall / (potSize + toCall);
-      const potOddsPercent = (potOdds * 100).toFixed(1);
-      
-      // Set strategy based on hand strength and pot odds
-      if (handRank >= 7) { // Full House+
-        strategy = "Very Strong Hand";
-        actionAdvice = "Consider slow playing if the board isn't draw-heavy. Otherwise, bet for value.";
-        if (toCall > 0) {
-          actionAdvice += " Raise any bets to build the pot.";
-        } else {
-          actionAdvice += " Bet around 1/2 to 2/3 of the pot.";
-        }
-      } else if (handRank >= 5) { // Straight or Flush
-        strategy = "Strong Hand";
-        if (toCall > 0) {
-          if (toCall / potSize > 0.7) {
-            actionAdvice = "Raise if you think opponent might call with worse, otherwise call.";
-          } else {
-            actionAdvice = "Call or raise to build the pot.";
-          }
-        } else {
-          actionAdvice = "Bet 1/2 to 3/4 of the pot for value.";
-        }
-      } else if (handRank === 4) { // Three of a Kind
-        strategy = "Good Hand";
-        if (toCall > 0) {
-          actionAdvice = "Call most reasonable bets. Raise if the board has potential draws.";
-        } else {
-          actionAdvice = "Bet around 1/2 of the pot.";
-        }
-      } else if (handRank === 3) { // Two Pair
-        strategy = "Decent Hand";
-        if (toCall > 0) {
-          if (toCall / potSize > 0.5) {
-            actionAdvice = "Call if you think your two pair is best, fold if you're likely behind.";
-          } else {
-            actionAdvice = "Call to see another card.";
-          }
-        } else {
-          actionAdvice = "Bet about 1/2 pot to protect your hand.";
-        }
-      } else if (handRank === 2) { // One Pair
-        strategy = "Marginal Hand";
-        if (toCall > 0) {
-          if (toCall / potSize > 0.3) {
-            actionAdvice = "Consider folding unless you have top pair with good kicker.";
-          } else {
-            actionAdvice = "Call small bets with decent pairs.";
-          }
-        } else {
-          actionAdvice = "Check or make a small bet (1/3 pot) if you're first to act.";
-        }
-      } else { // High Card
-        strategy = "Weak Hand";
-        if (toCall > 0) {
-          actionAdvice = "Fold unless the bet is very small.";
-        } else {
-          actionAdvice = "Check and hope to see a free card.";
-        }
-      }
-      
-      // Adjust for multiway pots
-      if (playersLeft > 2) {
-        if (handRank <= 3) {
-          actionAdvice += " Be more cautious in multiway pots.";
-        } else if (handRank >= 7) {
-          actionAdvice += " Bet larger in multiway pots to protect your strong hand.";
-        }
-      }
-      
-      // Pot odds summary
-      let potOddsAdvice = "";
-      if (toCall > 0) {
-        potOddsAdvice = `You need to call ${toCall} into a pot of ${potSize} (${potOddsPercent}% pot odds). `;
+      // Position-specific advice
+      if (positionType === 'early') {
+        if (isPair && highCard >= 8) return "Raise 3x BB with this medium pair.";
+        if (highCard >= 12 && lowCard >= 10) return "Raise 3x BB with these high cards.";
+        if (highCard === 14 && lowCard >= 8 && isSuited) return "Raise 2.5x BB with this suited Ace.";
+        if (highCard >= 10 && isConnector && isSuited) return "Consider raising 2.5x BB with suited connectors.";
         
-        if (potOdds > 0.33 && handRank <= 2) {
-          potOddsAdvice += "These pot odds aren't favorable for your current hand strength.";
-        } else if (potOdds < 0.2 && handRank >= 2) {
-          potOddsAdvice += "These are good pot odds even for marginal hands.";
+        return "This hand is below average strength for early position. Consider folding.";
+      }
+      
+      if (positionType === 'middle') {
+        if (isPair && highCard >= 5) return "Raise 3x BB with this pair.";
+        if (highCard >= 10 && lowCard >= 8) return "Raise 2.5-3x BB with these high cards.";
+        if (highCard === 14 && lowCard >= 2) return "Raise with any Ace from middle position.";
+        if (isConnector && isSuited) return "Consider raising 2.5x BB with suited connectors.";
+        
+        return "This hand has marginal value in middle position. Consider folding unless the table is passive.";
+      }
+      
+      // Late position
+      if (isPair) return "Raise 2.5-3x BB with any pair from late position.";
+      if (highCard >= 10) return "Raise 2.5x BB with any high card from late position.";
+      if (isConnector || isSuited) return "Consider raising 2x BB with connectors or suited cards from late position.";
+      
+      return "This hand has some playability from late position. Consider limping or making a small raise if no one has entered the pot.";
+    }
+    
+    // Advice for post-flop play
+    function getPostFlopAdvice(handEval, position, stage) {
+      if (!handEval) return "Please select cards for evaluation.";
+      
+      const strengthMap = {
+        'High Card': 'weak',
+        'One Pair': 'moderate',
+        'Two Pair': 'strong',
+        'Three of a Kind': 'very strong',
+        'Straight': 'very strong',
+        'Flush': 'very strong',
+        'Full House': 'monster',
+        'Four of a Kind': 'monster'
+      };
+      
+      const strength = strengthMap[handEval.type] || 'unknown';
+      
+      // Late positions can be more aggressive
+      const earlyPositions = ['utg', 'utg1', 'mp'];
+      const middlePositions = ['hj', 'co'];
+      const latePositions = ['btn', 'sb', 'bb'];
+      
+      let positionType = 'middle';
+      if (earlyPositions.includes(position)) positionType = 'early';
+      if (latePositions.includes(position)) positionType = 'late';
+      
+      let advice = `You have <span class="hand-strength">${handEval.type}</span>, which is a ${strength} hand. `;
+      
+      if (strength === 'monster') {
+        advice += "Consider slow-playing to build the pot or betting for value.";
+      } else if (strength === 'very strong') {
+        if (positionType === 'early') {
+          advice += "Bet for value, around 1/2 to 2/3 of the pot.";
+        } else {
+          advice += "Bet for value, around 2/3 to 3/4 of the pot.";
+        }
+      } else if (strength === 'strong') {
+        if (positionType === 'early') {
+          advice += "Consider a value bet of about 1/2 pot, but be cautious of strong responses.";
+        } else if (positionType === 'middle') {
+          advice += "Value bet about 1/2 to 2/3 pot.";
+        } else {
+          advice += "Value bet about 2/3 pot, or consider a check-raise if out of position.";
+        }
+      } else if (strength === 'moderate') {
+        if (positionType === 'early') {
+          advice += "Consider checking to control the pot size.";
+        } else if (positionType === 'middle') {
+          advice += "Small bet of about 1/3 pot, or check-call if out of position.";
+        } else {
+          advice += "Bet about 1/2 pot for value or as a bluff if checked to you.";
+        }
+      } else { // weak
+        if (positionType === 'late') {
+          advice += "Consider a bluff if checked to you, otherwise check.";
+        } else {
+          advice += "Check, and consider folding to significant bets unless you have a strong draw.";
         }
       }
       
-      return {
-        strategy: strategy,
-        actionAdvice: actionAdvice,
-        potOddsAdvice: potOddsAdvice
-      };
+      return advice;
     }
     
-    // Handler functions for each stage
+    // Advice functions
     function advisePreflop() {
-      const cards = getSelectedCards().slice(0, 2);
-      if (cards.length < 2) {
+      const hole = getSelectedCards().slice(0, 2);
+      if (hole.length < 2) {
         alert('Please select both hole cards');
         return;
       }
       
-      const evaluation = evaluatePreFlopHand(cards);
-      const adviceElement = document.getElementById('advicePre');
+      const position = document.getElementById('position').value;
+      const advice = getPreFlopAdvice(hole, position);
       
-      let adviceHTML = `
-        <div class="hand-strength">${evaluation.handType} - ${evaluation.strength}</div>
-        <div class="playability">Playability: ${evaluation.playability}</div>
-        <div class="hand-advice">${evaluation.advice}</div>
-      `;
-      
-      adviceElement.innerHTML = adviceHTML;
-      adviceElement.classList.remove('hidden');
+      document.getElementById('advicePre').innerHTML = advice;
       document.getElementById('flopSection').classList.remove('hidden');
     }
     
     function adviseFlop() {
-      // Get all cards up to flop
       const cards = getSelectedCards().slice(0, 5);
       if (cards.length < 5) {
         alert('Please select all three flop cards');
@@ -1022,28 +487,14 @@
       }
       
       const handEval = evaluateHand(cards);
-      const strategy = evaluatePostFlopStrategy(handEval, 'flop');
-      const adviceElement = document.getElementById('adviceFlop');
+      const position = document.getElementById('position').value;
+      const advice = getPostFlopAdvice(handEval, position, 'flop');
       
-      let adviceHTML = `
-        <div class="hand-strength">Current Hand: ${handEval.type}</div>
-        <div>${handEval.description}</div>
-        <br>
-        <div><strong>Strategy:</strong> ${strategy.strategy}</div>
-        <div>${strategy.actionAdvice}</div>
-      `;
-      
-      if (strategy.potOddsAdvice) {
-        adviceHTML += `<br><div>${strategy.potOddsAdvice}</div>`;
-      }
-      
-      adviceElement.innerHTML = adviceHTML;
-      adviceElement.classList.remove('hidden');
+      document.getElementById('adviceFlop').innerHTML = advice;
       document.getElementById('turnSection').classList.remove('hidden');
     }
     
     function adviseTurn() {
-      // Get all cards up to turn
       const cards = getSelectedCards().slice(0, 6);
       if (cards.length < 6) {
         alert('Please select the turn card');
@@ -1051,28 +502,14 @@
       }
       
       const handEval = evaluateHand(cards);
-      const strategy = evaluatePostFlopStrategy(handEval, 'turn');
-      const adviceElement = document.getElementById('adviceTurn');
+      const position = document.getElementById('position').value;
+      const advice = getPostFlopAdvice(handEval, position, 'turn');
       
-      let adviceHTML = `
-        <div class="hand-strength">Current Hand: ${handEval.type}</div>
-        <div>${handEval.description}</div>
-        <br>
-        <div><strong>Strategy:</strong> ${strategy.strategy}</div>
-        <div>${strategy.actionAdvice}</div>
-      `;
-      
-      if (strategy.potOddsAdvice) {
-        adviceHTML += `<br><div>${strategy.potOddsAdvice}</div>`;
-      }
-      
-      adviceElement.innerHTML = adviceHTML;
-      adviceElement.classList.remove('hidden');
+      document.getElementById('adviceTurn').innerHTML = advice;
       document.getElementById('riverSection').classList.remove('hidden');
     }
     
     function adviseRiver() {
-      // Get all cards
       const cards = getSelectedCards();
       if (cards.length < 7) {
         alert('Please select the river card');
@@ -1080,396 +517,37 @@
       }
       
       const handEval = evaluateHand(cards);
-      const strategy = evaluatePostFlopStrategy(handEval, 'river');
-      const adviceElement = document.getElementById('adviceRiver');
+      const position = document.getElementById('position').value;
+      const advice = getPostFlopAdvice(handEval, position, 'river');
       
-      let adviceHTML = `
-        <div class="hand-strength">Final Hand: ${handEval.type}</div>
-        <div>${handEval.description}</div>
-        <br>
-        <div><strong>Strategy:</strong> ${strategy.strategy}</div>
-        <div>${strategy.actionAdvice}</div>
-      `;
-      
-      if (strategy.potOddsAdvice) {
-        adviceHTML += `<br><div>${strategy.potOddsAdvice}</div>`;
-      }
-      
-      adviceElement.innerHTML = adviceHTML;
-      adviceElement.classList.remove('hidden');
+      document.getElementById('adviceRiver').innerHTML = advice;
     }
     
-    // Calculate odds for drawing hands
-    function calculateOdds() {
-      const potSize = parseInt(document.getElementById('oddsCalcPot').value);
-      const toCall = parseInt(document.getElementById('oddsCalcCall').value);
-      const outs = parseInt(document.getElementById('oddsCalcOuts').value);
+    // Reset the game state
+    function resetGame() {
+      // Clear all selections
+      cardSelectors.forEach(id => {
+        document.getElementById(id).value = '';
+      });
       
-      // Calculate odds
-      const turnOdds = outs * 2.1; // Rule of 2
-      const riverOdds = outs * 4.2; // Rule of 4
+      // Clear advice sections
+      document.getElementById('advicePre').innerHTML = '';
+      document.getElementById('adviceFlop').innerHTML = '';
+      document.getElementById('adviceTurn').innerHTML = '';
+      document.getElementById('adviceRiver').innerHTML = '';
       
-      // Calculate pot odds
-      const potOdds = toCall / (potSize + toCall);
-      const potOddsPercent = (potOdds * 100).toFixed(1);
-      const requiredEquity = (potOddsPercent / 100).toFixed(2);
+      // Hide sections
+      document.getElementById('flopSection').classList.add('hidden');
+      document.getElementById('turnSection').classList.add('hidden');
+      document.getElementById('riverSection').classList.add('hidden');
       
-      // Calculate EV
-        <h2>Starting Hands Guide</h2>
-        <p>Below is a guide to which hands to play from different positions:</p>
-        
-        <div class="starting-hands-grid">
-          <div class="grid-cell"></div>
-          <div class="grid-cell">A</div>
-          <div class="grid-cell">K</div>
-          <div class="grid-cell">Q</div>
-          <div class="grid-cell">J</div>
-          <div class="grid-cell">T</div>
-          <div class="grid-cell">9</div>
-          <div class="grid-cell">8</div>
-          <div class="grid-cell">7</div>
-          <div class="grid-cell">6</div>
-          <div class="grid-cell">5</div>
-          <div class="grid-cell">4</div>
-          <div class="grid-cell">3</div>
-          <div class="grid-cell">2</div>
-          
-          <div class="grid-cell">A</div>
-          <div class="grid-cell premium">AA</div>
-          <div class="grid-cell premium">AK</div>
-          <div class="grid-cell premium">AQ</div>
-          <div class="grid-cell strong">AJ</div>
-          <div class="grid-cell strong">AT</div>
-          <div class="grid-cell playable">A9</div>
-          <div class="grid-cell playable">A8</div>
-          <div class="grid-cell playable">A7</div>
-          <div class="grid-cell playable">A6</div>
-          <div class="grid-cell playable">A5</div>
-          <div class="grid-cell playable">A4</div>
-          <div class="grid-cell playable">A3</div>
-          <div class="grid-cell playable">A2</div>
-          
-          <div class="grid-cell">K</div>
-          <div class="grid-cell premium">KA</div>
-          <div class="grid-cell premium">KK</div>
-          <div class="grid-cell premium">KQ</div>
-          <div class="grid-cell strong">KJ</div>
-          <div class="grid-cell strong">KT</div>
-          <div class="grid-cell playable">K9</div>
-          <div class="grid-cell weak">K8</div>
-          <div class="grid-cell weak">K7</div>
-          <div class="grid-cell weak">K6</div>
-          <div class="grid-cell weak">K5</div>
-          <div class="grid-cell weak">K4</div>
-          <div class="grid-cell weak">K3</div>
-          <div class="grid-cell weak">K2</div>
-          
-          <div class="grid-cell">Q</div>
-          <div class="grid-cell premium">QA</div>
-          <div class="grid-cell premium">QK</div>
-          <div class="grid-cell premium">QQ</div>
-          <div class="grid-cell strong">QJ</div>
-          <div class="grid-cell playable">QT</div>
-          <div class="grid-cell playable">Q9</div>
-          <div class="grid-cell weak">Q8</div>
-          <div class="grid-cell weak">Q7</div>
-          <div class="grid-cell weak">Q6</div>
-          <div class="grid-cell weak">Q5</div>
-          <div class="grid-cell weak">Q4</div>
-          <div class="grid-cell weak">Q3</div>
-          <div class="grid-cell weak">Q2</div>
-          
-          <div class="grid-cell">J</div>
-          <div class="grid-cell strong">JA</div>
-          <div class="grid-cell strong">JK</div>
-          <div class="grid-cell strong">JQ</div>
-          <div class="grid-cell strong">JJ</div>
-          <div class="grid-cell playable">JT</div>
-          <div class="grid-cell playable">J9</div>
-          <div class="grid-cell weak">J8</div>
-          <div class="grid-cell weak">J7</div>
-          <div class="grid-cell weak">J6</div>
-          <div class="grid-cell weak">J5</div>
-          <div class="grid-cell weak">J4</div>
-          <div class="grid-cell weak">J3</div>
-          <div class="grid-cell weak">J2</div>
-          
-          <div class="grid-cell">T</div>
-          <div class="grid-cell strong">TA</div>
-          <div class="grid-cell strong">TK</div>
-          <div class="grid-cell playable">TQ</div>
-          <div class="grid-cell playable">TJ</div>
-          <div class="grid-cell playable">TT</div>
-          <div class="grid-cell playable">T9</div>
-          <div class="grid-cell playable">T8</div>
-          <div class="grid-cell weak">T7</div>
-          <div class="grid-cell weak">T6</div>
-          <div class="grid-cell weak">T5</div>
-          <div class="grid-cell weak">T4</div>
-          <div class="grid-cell weak">T3</div>
-          <div class="grid-cell weak">T2</div>
-          
-          <div class="grid-cell">9</div>
-          <div class="grid-cell playable">9A</div>
-          <div class="grid-cell playable">9K</div>
-          <div class="grid-cell playable">9Q</div>
-          <div class="grid-cell playable">9J</div>
-          <div class="grid-cell playable">9T</div>
-          <div class="grid-cell playable">99</div>
-          <div class="grid-cell playable">98</div>
-          <div class="grid-cell playable">97</div>
-          <div class="grid-cell weak">96</div>
-          <div class="grid-cell weak">95</div>
-          <div class="grid-cell weak">94</div>
-          <div class="grid-cell weak">93</div>
-          <div class="grid-cell weak">92</div>
-          
-          <div class="grid-cell">8</div>
-          <div class="grid-cell playable">8A</div>
-          <div class="grid-cell weak">8K</div>
-          <div class="grid-cell weak">8Q</div>
-          <div class="grid-cell weak">8J</div>
-          <div class="grid-cell playable">8T</div>
-          <div class="grid-cell playable">89</div>
-          <div class="grid-cell playable">88</div>
-          <div class="grid-cell playable">87</div>
-          <div class="grid-cell playable">86</div>
-          <div class="grid-cell weak">85</div>
-          <div class="grid-cell weak">84</div>
-          <div class="grid-cell weak">83</div>
-          <div class="grid-cell weak">82</div>
-          
-          <div class="grid-cell">7</div>
-          <div class="grid-cell playable">7A</div>
-          <div class="grid-cell weak">7K</div>
-          <div class="grid-cell weak">7Q</div>
-          <div class="grid-cell weak">7J</div>
-          <div class="grid-cell weak">7T</div>
-          <div class="grid-cell playable">79</div>
-          <div class="grid-cell playable">78</div>
-          <div class="grid-cell playable">77</div>
-          <div class="grid-cell playable">76</div>
-          <div class="grid-cell playable">75</div>
-          <div class="grid-cell weak">74</div>
-          <div class="grid-cell weak">73</div>
-          <div class="grid-cell weak">72</div>
-          
-          <div class="grid-cell">6</div>
-          <div class="grid-cell playable">6A</div>
-          <div class="grid-cell weak">6K</div>
-          <div class="grid-cell weak">6Q</div>
-          <div class="grid-cell weak">6J</div>
-          <div class="grid-cell weak">6T</div>
-          <div class="grid-cell weak">69</div>
-          <div class="grid-cell playable">68</div>
-          <div class="grid-cell playable">67</div>
-          <div class="grid-cell playable">66</div>
-          <div class="grid-cell playable">65</div>
-          <div class="grid-cell playable">64</div>
-          <div class="grid-cell weak">63</div>
-          <div class="grid-cell weak">62</div>
-          
-          <div class="grid-cell">5</div>
-          <div class="grid-cell playable">5A</div>
-          <div class="grid-cell weak">5K</div>
-          <div class="grid-cell weak">5Q</div>
-          <div class="grid-cell weak">5J</div>
-          <div class="grid-cell weak">5T</div>
-          <div class="grid-cell weak">59</div>
-          <div class="grid-cell weak">58</div>
-          <div class="grid-cell playable">57</div>
-          <div class="grid-cell playable">56</div>
-          <div class="grid-cell playable">55</div>
-          <div class="grid-cell playable">54</div>
-          <div class="grid-cell playable">53</div>
-          <div class="grid-cell weak">52</div>
-          
-          <div class="grid-cell">4</div>
-          <div class="grid-cell playable">4A</div>
-          <div class="grid-cell weak">4K</div>
-          <div class="grid-cell weak">4Q</div>
-          <div class="grid-cell weak">4J</div>
-          <div class="grid-cell weak">4T</div>
-          <div class="grid-cell weak">49</div>
-          <div class="grid-cell weak">48</div>
-          <div class="grid-cell weak">47</div>
-          <div class="grid-cell playable">46</div>
-          <div class="grid-cell playable">45</div>
-          <div class="grid-cell playable">44</div>
-          <div class="grid-cell playable">43</div>
-          <div class="grid-cell weak">42</div>
-          
-          <div class="grid-cell">3</div>
-          <div class="grid-cell playable">3A</div>
-          <div class="grid-cell weak">3K</div>
-          <div class="grid-cell weak">3Q</div>
-          <div class="grid-cell weak">3J</div>
-          <div class="grid-cell weak">3T</div>
-          <div class="grid-cell weak">39</div>
-          <div class="grid-cell weak">38</div>
-          <div class="grid-cell weak">37</div>
-          <div class="grid-cell weak">36</div>
-          <div class="grid-cell playable">35</div>
-          <div class="grid-cell playable">34</div>
-          <div class="grid-cell playable">33</div>
-          <div class="grid-cell weak">32</div>
-          
-          <div class="grid-cell">2</div>
-          <div class="grid-cell playable">2A</div>
-          <div class="grid-cell weak">2K</div>
-          <div class="grid-cell weak">2Q</div>
-          <div class="grid-cell weak">2J</div>
-          <div class="grid-cell weak">2T</div>
-          <div class="grid-cell weak">29</div>
-          <div class="grid-cell weak">28</div>
-          <div class="grid-cell weak">27</div>
-          <div class="grid-cell weak">26</div>
-          <div class="grid-cell weak">25</div>
-          <div class="grid-cell weak">24</div>
-          <div class="grid-cell weak">23</div>
-          <div class="grid-cell weak">22</div>
-        </div>
-        
-        <div style="margin-top: 20px;">
-          <div><span class="grid-cell premium" style="display: inline-block; width: 20px;"></span> Premium (Play in any position)</div>
-          <div><span class="grid-cell strong" style="display: inline-block; width: 20px;"></span> Strong (Play from middle position+)</div>
-          <div><span class="grid-cell playable" style="display: inline-block; width: 20px;"></span> Playable (Play from late position)</div>
-          <div><span class="grid-cell speculative" style="display: inline-block; width: 20px;"></span> Speculative (Play if suited)</div>
-          <div><span class="grid-cell weak" style="display: inline-block; width: 20px;"></span> Weak (Avoid unless in blinds)</div>
-        </div>
-      </div>
-      
-      <div class="section">
-        <h2>Position Strategy</h2>
-        <table class="stats-table">
-          <tr>
-            <th>Position</th>
-            <th>Strategy</th>
-          </tr>
-          <tr>
-            <td>Early (UTG, UTG+1)</td>
-            <td>Play tight, premium hands only. Avoid marginal hands and suited connectors.</td>
-          </tr>
-          <tr>
-            <td>Middle (MP, HJ)</td>
-            <td>Play solid hands. Can include some strong suited connectors and suited aces.</td>
-          </tr>
-          <tr>
-            <td>Late (CO, BTN)</td>
-            <td>Play wider range. Can play more speculative hands and make position-based steals.</td>
-          </tr>
-          <tr>
-            <td>Blinds (SB, BB)</td>
-            <td>Defend wider in BB, play very tight from SB. Watch for squeeze plays.</td>
-          </tr>
-        </table>
-      </div>
-      
-      <div class="section">
-        <h2>Betting Strategy</h2>
-        <table class="stats-table">
-          <tr>
-            <th>Concept</th>
-            <th>Explanation</th>
-          </tr>
-          <tr>
-            <td>Value Betting</td>
-            <td>Bet when you believe you have the best hand to extract value from worse hands.</td>
-          </tr>
-          <tr>
-            <td>Bluffing</td>
-            <td>Bet with weak hands to make better hands fold. Choose spots where your story makes sense.</td>
-          </tr>
-          <tr>
-            <td>Semi-Bluffing</td>
-            <td>Betting with a hand that isn't strong yet but has potential to improve (drawing hands).</td>
-          </tr>
-          <tr>
-            <td>Pot Control</td>
-            <td>Keeping the pot small when you have a medium-strength hand to avoid difficult decisions.</td>
-          </tr>
-          <tr>
-            <td>Check-Raising</td>
-            <td>Checking with plans to raise after an opponent bets. Used for deception with strong hands or as a bluff.</td>
-          </tr>
-        </table>
-      </div>
-    </div>
+      // Reset used cards
+      usedCards.clear();
+      updateSelectedCards();
+    }
     
-    <div id="oddsTab" class="hidden">
-      <div class="section">
-        <h2>Pot Odds Calculator</h2>
-        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-          <div style="flex: 1;">
-            <label>Current Pot Size</label>
-            <input type="number" id="oddsCalcPot" value="100"/>
-          </div>
-          <div style="flex: 1;">
-            <label>Amount to Call</label>
-            <input type="number" id="oddsCalcCall" value="20"/>
-          </div>
-        </div>
-        <div style="margin-top: 15px;">
-          <label>Number of Outs (cards that will improve your hand)</label>
-          <input type="number" id="oddsCalcOuts" value="8" min="1" max="20"/>
-        </div>
-        <button onclick="calculateOdds()">Calculate Odds</button>
-        <div id="oddsResult" class="advice-box hidden"></div>
-      </div>
-      
-      <div class="section">
-        <h2>Common Drawing Odds</h2>
-        <table class="stats-table">
-          <tr>
-            <th>Draw Type</th>
-            <th>Outs</th>
-            <th>Flop to Turn</th>
-            <th>Turn to River</th>
-            <th>Flop to River</th>
-          </tr>
-          <tr>
-            <td>Flush Draw</td>
-            <td>9</td>
-            <td>19.1%</td>
-            <td>19.6%</td>
-            <td>35.0%</td>
-          </tr>
-          <tr>
-            <td>Open-Ended Straight Draw</td>
-            <td>8</td>
-            <td>17.0%</td>
-            <td>17.4%</td>
-            <td>31.5%</td>
-          </tr>
-          <tr>
-            <td>Gutshot Straight Draw</td>
-            <td>4</td>
-            <td>8.5%</td>
-            <td>8.7%</td>
-            <td>16.5%</td>
-          </tr>
-          <tr>
-            <td>Set to Full House/Quads</td>
-            <td>7</td>
-            <td>14.9%</td>
-            <td>15.2%</td>
-            <td>27.8%</td>
-          </tr>
-          <tr>
-            <td>Two Pair to Full House</td>
-            <td>4</td>
-            <td>8.5%</td>
-            <td>8.7%</td>
-            <td>16.5%</td>
-          </tr>
-          <tr>
-            <td>Flush + Straight Draw</td>
-            <td>15</td>
-            <td>31.9%</td>
-            <td>32.6%</td>
-            <td>54.1%</td>
-          </tr>
-        </table>
-      </div>
-      
-      <div class="section">
+    // Initialize the game
+    updateSelectedCards();
+  </script>
+</body>
+</html>
